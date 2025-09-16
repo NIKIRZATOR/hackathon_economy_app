@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import '../models/building.dart';
 import '../models/drag_preview.dart';
@@ -10,6 +12,9 @@ class MapPainter extends CustomPainter {
   final DragPreview? dragPreview;
   final int version;
 
+  // Текстуры
+  final ui.Image? roadTexture;
+
   MapPainter({
     required this.terrain,
     required this.buildings,
@@ -17,6 +22,7 @@ class MapPainter extends CustomPainter {
     required this.borderThickness,
     required this.dragPreview,
     required this.version,
+    this.roadTexture,
   });
 
   @override
@@ -29,18 +35,38 @@ class MapPainter extends CustomPainter {
     // 1) клетки по типу
     for (int y = 0; y < rows; y++) {
       for (int x = 0; x < cols; x++) {
-        switch (terrain[y][x]) {
-          case 0:
-            p.color = Colors.white;
-            break;
-          case 1:
-            p.color = Colors.black12;
-            break;
-          case 2:
-            p.color = const Color(0xFF5DA9E9);
-            break;
+        final rect = Rect.fromLTWH(x * cellSize, y * cellSize, cellSize, cellSize);
+        final t = terrain[y][x];
+
+        if (t == 1 && roadTexture != null) {
+          // дорога — рисуем PNG
+          paintImage(
+            canvas: canvas,
+            rect: rect,
+            image: roadTexture!,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+          );
+        } else {
+          // fallback одноцветно
+          switch (t) {
+            case 0: // пусто
+              p.color = Colors.white;
+              break;
+            case 1: // дорога без текстуры
+              p.color = Colors.black12;
+              break;
+            case 2: // занятая ячейка (если используешь)
+              p.color = const Color(0xFFBDBDBD);
+              break;
+            case 3: // вода
+              p.color = const Color(0xFF5DA9E9);
+              break;
+            default:
+              p.color = Colors.white;
+          }
+          canvas.drawRect(rect, p);
         }
-        canvas.drawRect(Rect.fromLTWH(x * cellSize, y * cellSize, cellSize, cellSize), p);
       }
     }
 
@@ -70,10 +96,13 @@ class MapPainter extends CustomPainter {
     for (final b in buildings) {
       final rect = Rect.fromLTWH(b.x * cellSize, b.y * cellSize, b.w * cellSize, b.h * cellSize);
       canvas.drawRect(rect, Paint()..color = b.fill);
-      canvas.drawRect(rect, Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..color = b.border);
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..color = b.border,
+      );
     }
 
     // 5) превью при переносе
@@ -81,11 +110,14 @@ class MapPainter extends CustomPainter {
       final r = dragPreview!.rect;
       final rect = Rect.fromLTWH(r.left * cellSize, r.top * cellSize, r.width * cellSize, r.height * cellSize);
       final ok = dragPreview!.isValid;
-      canvas.drawRect(rect, Paint()..color = (ok ? Colors.green : Colors.red).withOpacity(0.35));
-      canvas.drawRect(rect, Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2
-        ..color = (ok ? Colors.green : Colors.red));
+      canvas.drawRect(rect, Paint()..color = (ok ? Colors.green : Colors.red).withValues(alpha: 0.35));
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..color = (ok ? Colors.green : Colors.red),
+      );
     }
   }
 
@@ -96,6 +128,7 @@ class MapPainter extends CustomPainter {
         old.buildings != buildings ||
         old.cellSize != cellSize ||
         old.dragPreview != dragPreview ||
-        old.borderThickness != borderThickness;
+        old.borderThickness != borderThickness ||
+        old.roadTexture != roadTexture; // если текстура подгрузилась
   }
 }
