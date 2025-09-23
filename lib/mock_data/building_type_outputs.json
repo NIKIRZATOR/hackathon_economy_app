@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "id_building_type": 1,
+    "id_resource": 1,
+    "produce_mode": "continuous",
+    "produce_per_sec": 0.5,
+    "cycle_duration": 0,
+    "amount_per_cycle": 0,
+    "buffer_for_resource": 100
+  },
+  {
+    "id": 2,
+    "id_building_type": 2,
+    "id_resource": 1,
+    "produce_mode": "continuous",
+    "produce_per_sec": 1.6,
+    "cycle_duration": 0,
+    "amount_per_cycle": 0,
+    "buffer_for_resource": 300
+  },
+  {
+    "id": 3,
+    "id_building_type": 3,
+    "id_resource": 4,
+    "produce_mode": "continuous",
+    "produce_per_sec": 0.2,
+    "cycle_duration": 0,
+    "amount_per_cycle": 0,
+    "buffer_for_resource": 200
+  },
+  {
+    "id": 4,
+    "id_building_type": 4,
+    "id_resource": 2,
+    "produce_mode": "batch",
+    "produce_per_sec": 0.0,
+    "cycle_duration": 5,
+    "amount_per_cycle": 1,
+    "buffer_for_resource": 500
+  },
+  {
+    "id": 5,
+    "id_building_type": 5,
+    "id_resource": 1,
+    "produce_mode": "batch",
+    "produce_per_sec": 0.0,
+    "cycle_duration": 21600,
+    "amount_per_cycle": 500,
+    "buffer_for_resource": 0
+  },
+  {
+    "id": 6,
+    "id_building_type": 1,
+    "id_resource": 6,
+    "produce_mode": "continuous",
+    "produce_per_sec": 0.05,
+    "cycle_duration": 0,
+    "amount_per_cycle": 0,
+    "buffer_for_resource": 50
+  }
+]
