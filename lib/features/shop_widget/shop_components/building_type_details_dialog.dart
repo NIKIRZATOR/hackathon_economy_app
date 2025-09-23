@@ -91,9 +91,7 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if ((bt.description ?? '').isNotEmpty)
-                                      Text(bt.description!)
-                                    else
+                                      Text(bt.description!),
                                       Text(
                                         'Размер: ${bt.wSize}×${bt.hSize}\n'
                                         'Макс. апгрейд: ${bt.maxUpgradeLvl}\n'
