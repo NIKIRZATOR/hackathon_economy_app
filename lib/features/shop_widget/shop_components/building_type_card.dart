@@ -17,16 +17,17 @@ class BuildingTypeCard extends StatelessWidget {
   final double screenHeight;
   final double screenWight;
 
-  void _openDetails(BuildContext context) {
-    showDialog(
+  void _openDetails(BuildContext context) async {
+    final selected = await showDialog<BuildingType>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => BuildingTypeDetailsDialog(
-        bt: bt,
-        screenHeight: screenHeight,
-        screenWight: screenWight,
-      ),
+      builder: (_) => BuildingTypeDetailsDialog(bt: bt, screenHeight:screenHeight, screenWight: screenWight,),
     );
+
+    if (selected != null) {
+      // закрыть диалог магазина и поднять выбранный тип выше
+      Navigator.of(context).pop<BuildingType>(selected);
+    }
   }
 
   @override

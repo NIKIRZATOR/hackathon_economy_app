@@ -110,14 +110,8 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                             height: 40,
                             child: FilledButton(
                               onPressed: () {
-                                // позже сюда вставите логику покупки/постройки
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Купить «${bt.titleBuildingType}» за ${bt.cost} р',
-                                    ),
-                                  ),
-                                );
+                                // вернуть выбранный тип наружу
+                                Navigator.of(context).pop(bt);
                               },
                               child: const Text('Купить'),
                             ),
