@@ -5,6 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hackathon_economy_app/features/bottom_bar/bottom_bar_container.dart';
+import 'package:hackathon_economy_app/features/top_bar/city_top_bar.dart';
 import 'package:vector_math/vector_math_64.dart' as v_math;
 
 import '../../building_types/model/building_type_model.dart';
@@ -111,6 +112,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
         height: targetH,
         child: Scaffold(
           appBar: AppBar(
+            backgroundColor: Colors.red,
             title: const Text('Город Капитала'),
             actions: [
               if (_moveMode)
@@ -129,9 +131,22 @@ class _CityMapScreenState extends State<CityMapScreen> {
           ),
           body: Column(
             children: [
-              buildTopToolbar(),
+              CityTopBar(
+                userId: 1,
+                userLvl: 2,
+                xpCount: 25,
+                coinsCount: 100,
+                screenHeight: targetH,
+                screenWidth: targetW,
+              ),
+
+              //buildTopToolbar(),
               Expanded(child: buildMapCanvas()),
-              CityMapBottomBar(height: targetH, wight: targetW, onBuyBuildingType: _spawnFromTypeAndEnterMove,),
+              CityMapBottomBar(
+                height: targetH,
+                wight: targetW,
+                onBuyBuildingType: _spawnFromTypeAndEnterMove,
+              ),
             ],
           ),
         ),
