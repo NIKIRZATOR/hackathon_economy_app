@@ -2,18 +2,18 @@ part of '../city_map_screen.dart';
 
 extension _CityMapStateInit on _CityMapScreenState {
 
-  /// Освобождение ресурсов
+  // сброс кэша
   void mapDispose() {
     _tc.dispose();
   }
 
-  /// Утилита: короткий Toast/SnackBar
+  /// быстрый snackBar
   void _toast(String msg) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  /// Загрузка PNG в ui.Image
+  /// загрузка PNG в ui.Image
   Future<ui.Image> _loadUiImage(String assetPath) async {
     final data = await rootBundle.load(assetPath);
     final bytes = data.buffer.asUint8List();

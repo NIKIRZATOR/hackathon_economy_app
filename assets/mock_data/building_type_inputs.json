@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "id_building_type": 1,
+    "id_resource": 3,
+    "consume_per_sec": 0.1,
+    "amount_per_sec": 0
+  },
+  {
+    "id": 2,
+    "id_building_type": 4,
+    "id_resource": 3,
+    "consume_per_sec": 0,
+    "amount_per_sec": 0
+  },
+  {
+    "id": 3,
+    "id_building_type": 2,
+    "id_resource": 6,
+    "consume_per_sec": 0.05,
+    "amount_per_sec": 0
+  },
+  {
+    "id": 4,
+    "id_building_type": 3,
+    "id_resource": 6,
+    "consume_per_sec": 0.03,
+    "amount_per_sec": 0
+  },
+  {
+    "id": 5,
+    "id_building_type": 5,
+    "id_resource": 5,
+    "consume_per_sec": 0,
+    "amount_per_sec": 0
+  },
+  {
+    "id": 6,
+    "id_building_type": 1,
+    "id_resource": 6,
+    "consume_per_sec": 0.02,
+    "amount_per_sec": 0
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id_user_building": 101,
+    "id_user": 1,
+    "id_building_type": 1,
+    "x": 10,
+    "y": 5,
+    "current_level": 1,
+    "state": "active",
+    "placed_at": "2025-09-22T08:05:00Z",
+    "last_upgrade_at": null
+  },
+  {
+    "id_user_building": 102,
+    "id_user": 1,
+    "id_building_type": 2,
+    "x": 14,
+    "y": 6,
+    "current_level": 1,
+    "state": "constructing",
+    "placed_at": "2025-09-22T08:06:00Z",
+    "last_upgrade_at": null
+  },
+  {
+    "id_user_building": 103,
+    "id_user": 1,
+    "id_building_type": 5,
+    "x": 12,
+    "y": 7,
+    "current_level": 1,
+    "state": "active",
+    "placed_at": "2025-09-22T08:07:30Z",
+    "last_upgrade_at": null
+  },
+  {
+    "id_user_building": 201,
+    "id_user": 2,
+    "id_building_type": 1,
+    "x": 10,
+    "y": 5,
+    "current_level": 1,
+    "state": "active",
+    "placed_at": "2025-09-22T07:56:00Z",
+    "last_upgrade_at": null
+  },
+  {
+    "id_user_building": 202,
+    "id_user": 2,
+    "id_building_type": 3,
+    "x": 18,
+    "y": 9,
+    "current_level": 1,
+    "state": "active",
+    "placed_at": "2025-09-22T08:10:00Z",
+    "last_upgrade_at": null
+  },
+  {
+    "id_user_building": 203,
+    "id_user": 2,
+    "id_building_type": 4,
+    "x": 20,
+    "y": 11,
+    "current_level": 1,
+    "state": "active",
+    "placed_at": "2025-09-22T08:12:00Z",
+    "last_upgrade_at": null
+  }
+]

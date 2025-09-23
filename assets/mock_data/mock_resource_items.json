@@ -1,0 +1,37 @@
+[
+  {
+    "id_item": 1,
+    "title": "Монеты",
+    "code": "coins",
+    "is_currency": true,
+    "is_storable": true
+  },
+  {
+    "id_item": 2,
+    "title": "Топливо",
+    "code": "fuel",
+    "is_currency": false,
+    "is_storable": true
+  },
+  {
+    "id_item": 3,
+    "title": "Бумага",
+    "code": "paper",
+    "is_currency": false,
+    "is_storable": true
+  },
+  {
+    "id_item": 5,
+    "title": "Ткань",
+    "code": "fabric",
+    "is_currency": false,
+    "is_storable": true
+  },
+  {
+    "id_item": 6,
+    "title": "Энергия",
+    "code": "power",
+    "is_currency": false,
+    "is_storable": true
+  }
+]

@@ -32,6 +32,8 @@ extension _CityMapStateWidgets on _CityMapScreenState {
         // настраиваемый множитель, ссылка на 51 строку
         final realCell = (baseCell * cellSizeMultiplier).clamp(6.0, 64.0);
 
+        _lastCellSize = realCell;
+
         final mapWidthPx  = _CityMapScreenState.cols * realCell;
         final mapHeightPx = _CityMapScreenState.rows * realCell;
 
@@ -46,7 +48,7 @@ extension _CityMapStateWidgets on _CityMapScreenState {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // Область панорамирования (масштаб выключен)
+                  // область панорамирования (масштаб выключен)
                   Listener(
                     onPointerSignal: (ps) {},
                     child: GestureDetector(

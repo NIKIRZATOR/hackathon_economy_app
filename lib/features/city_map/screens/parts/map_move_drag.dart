@@ -1,7 +1,7 @@
 part of '../city_map_screen.dart';
 
 extension _CityMapStateMoveDrag on _CityMapScreenState {
-  /// Начало перетаскивания (жест на child внутри InteractiveViewer → локальные = scene)
+  /// начало перетаскивания
   void _onMovePanStart(DragStartDetails d, double cellSize) {
     if (!_moveMode || _moveRequestedId == null || _dragging != null) return;
 
@@ -23,14 +23,14 @@ extension _CityMapStateMoveDrag on _CityMapScreenState {
     });
   }
 
-  /// Обновление перетаскивания
+  /// обновление перетаскивания
   void _onMovePanUpdate(DragUpdateDetails d, double cellSize) {
     if (_dragging == null) return;
     final scene = d.localPosition;
     doSetState(() => _updatePreviewForScene(scene, cellSize));
   }
 
-  /// Завершение перетаскивания
+  /// завершение перетаскивания
   void _onMovePanEnd(DragEndDetails d, double cellSize) {
     if (_dragging == null) return;
     final b = _dragging!;
@@ -48,11 +48,10 @@ extension _CityMapStateMoveDrag on _CityMapScreenState {
       }
       _dragging = null;
       _preview = null;
-      // режим переноса остаётся до нажатия на ✅
     });
   }
 
-  /// Пересчёт «призрачного» прямоугольника превью и валидации
+  /// пересчёт «призрачного» прямоугольника, превью и валидации
   void _updatePreviewForScene(Offset scene, double cellSize) {
     final b = _dragging!;
     final int cellX = (scene.dx / cellSize).floor() - _dragOffsetInCellsX;

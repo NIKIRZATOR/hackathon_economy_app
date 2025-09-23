@@ -7,6 +7,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:hackathon_economy_app/features/bottom_bar/bottom_bar_container.dart';
 import 'package:vector_math/vector_math_64.dart' as v_math;
 
+import '../../building_types/model/building_type_model.dart';
 import '../models/building.dart';
 import '../models/drag_preview.dart';
 import '../painters/map_painter.dart';
@@ -82,6 +83,8 @@ class _CityMapScreenState extends State<CityMapScreen> {
     });
   }
 
+  double? _lastCellSize; // для расчёта позиции кнопки и пр.
+
   @override
   void initState() {
     super.initState();
@@ -128,7 +131,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
             children: [
               buildTopToolbar(),
               Expanded(child: buildMapCanvas()),
-              CityMapBottomBar(height: targetH * 0.07),
+              CityMapBottomBar(height: targetH, wight: targetW, onBuyBuildingType: _spawnFromTypeAndEnterMove,),
             ],
           ),
         ),
