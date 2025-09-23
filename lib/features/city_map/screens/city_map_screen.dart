@@ -128,7 +128,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
             children: [
               buildTopToolbar(),
               Expanded(child: buildMapCanvas()),
-              CityMapBottomBar(height: targetH * 0.07),
+              CityMapBottomBar(height: targetH, wight: targetW,),
             ],
           ),
         ),

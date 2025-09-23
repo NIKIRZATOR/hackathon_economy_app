@@ -40,4 +40,16 @@ class BuildingType {
     'unlock_level': unlockLevel,
     'max_upgrade_lvl': maxUpgradeLvl,
   };
+
+  /// фабрика под моковые данные
+  factory BuildingType.fromMockJson(Map<String, dynamic> json) => BuildingType(
+    idBuildingType: json['id_building'] ?? 0,
+    titleBuildingType: json['title_building'] ?? '',
+    description: json['description'],
+    cost: json['cost'] ?? 0,
+    hSize: json['h_size'] ?? 1,
+    wSize: json['w_size'] ?? 1,
+    unlockLevel: json['unlock_level'] ?? 1,
+    maxUpgradeLvl: json['max_upgrade_lvl'] ?? 1,
+  );
 }
