@@ -1,6 +1,17 @@
 part of '../city_map_screen.dart';
 
 extension _CityMapStateDialogs on _CityMapScreenState {
+
+  // поиск зданий на карте
+  Building? _buildingAtCell(int cellX, int cellY) {
+    for (final b in buildings) {
+      if (cellX >= b.x && cellX < b.x + b.w && cellY >= b.y && cellY < b.y + b.h) {
+        return b;
+      }
+    }
+    return null;
+  }
+
   /// Тап по карте (если не перенос) — открываем диалог здания
   void _onTapAt(Offset viewportPos, double cellSize) {
     if (_moveMode) return;

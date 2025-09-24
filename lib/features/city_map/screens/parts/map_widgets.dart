@@ -1,23 +1,6 @@
 part of '../city_map_screen.dart';
 
 extension _CityMapStateWidgets on _CityMapScreenState {
-  /// верхняя панель: временная кнопка создание здания
-  Widget buildTopToolbar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Row(
-        children: [
-          Expanded(
-            child: FilledButton.icon(
-              icon: const Icon(Icons.domain_add),
-              label: const Text('Создать здание'),
-              onPressed: _createRandomBuilding,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   /// центральная область: отрисовка карты, панорамирование/перенос, overlay
   Widget buildMapCanvas() {
@@ -91,7 +74,20 @@ extension _CityMapStateWidgets on _CityMapScreenState {
                   if (_moveMode && _moveRequestedId != null)
                     ConfirmButtonOverlay(
                       viewportPos: _confirmBtnViewportPos(realCell),
-                      onConfirm: () {
+                      onConfirm: () async {
+                        // найдём активное здание
+                        final b = buildings.firstWhere((e) => e.id == _moveRequestedId);
+
+                        // если это новое (только что купленное) — сохраняем как новую запись
+                        if (_pendingNewBuildingId == b.id && _pendingNewBuildingType != null) {
+                          await _persistNewBuilding(b, _pendingNewBuildingType!);
+                          _pendingNewBuildingId = null;
+                          _pendingNewBuildingType = null;
+                        } else {
+                          // иначе — это перенос существующего: обновим координаты
+                          await _persistUpdateBuildingPosition(b);
+                        }
+
                         doSetState(() {
                           _moveMode = false;
                           _moveRequestedId = null;
