@@ -64,6 +64,7 @@ flutter:
     - assets/images/road_gor.png
     - assets/mock_data/mock_building_type.json
     - assets/images/buildings/
+    - assets/mock_data/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

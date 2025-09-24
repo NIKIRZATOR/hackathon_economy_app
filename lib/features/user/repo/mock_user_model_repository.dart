@@ -1,9 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
-import 'package:hackathon_economy_app/features/user/model/user_model.dart';
 
-import '../../building_types/model/building_type_model.dart';
+import '../model/user_model.dart';
 
 class MockUserModelRepository {
   final String pathToFile;
@@ -12,9 +11,15 @@ class MockUserModelRepository {
     this.pathToFile = 'assets/mock_data/mock_user_model.json',
   });
 
-  Future<UserModel> loadCurrentUserById(int userId) async {
+  Future<UserModel?> loadCurrentUserById(int userId) async {
     final raw = await rootBundle.loadString(pathToFile);
-    final user = json.decode(raw);
-    return user; //TODO доделать вызов
+    final List<dynamic> data = json.decode(raw);
+
+    final userJson =
+    data.cast<Map<String, dynamic>>().firstWhere((u) => u['user_id'] == userId,
+        orElse: () => {});
+    if (userJson.isEmpty) return null;
+
+    return UserModel.fromJson(userJson);
   }
 }

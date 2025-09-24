@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hackathon_economy_app/features/user/model/user_model.dart';
 import 'top_bar_functions.dart';
 
 class CityTopBar extends StatelessWidget {
   const CityTopBar({
     super.key,
-    //required this.user,
+    this.user, // теперь необязательный
     required this.userId,
     required this.userLvl,
     required this.xpCount,
@@ -13,7 +14,7 @@ class CityTopBar extends StatelessWidget {
     required this.screenWidth,
   });
 
-  //final Object? user;
+  final UserModel? user; // nullable
   final int userId;
   final int userLvl;
   final int xpCount;
@@ -24,8 +25,16 @@ class CityTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final barHeight = screenHeight * 0.08;
 
-    final barHeight = screenHeight * 0.08; // 8% экрана (можно поправить)
+    if (user == null) {
+      // показываем лоадер на месте топ-бара
+      return SizedBox(
+        height: barHeight,
+        child: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     final isNarrow = screenWidth < 420;
 
     return Material(
@@ -34,49 +43,32 @@ class CityTopBar extends StatelessWidget {
         height: barHeight,
         padding: const EdgeInsets.symmetric(horizontal: 12),
         decoration: BoxDecoration(
-          color: const Color(0xFFD9D9D9), // светло-серый фон как на мокапе
+          color: const Color(0xFFD9D9D9),
           border: Border(
             bottom: BorderSide(color: Colors.black.withOpacity(0.25), width: 1),
           ),
         ),
         child: Row(
           children: [
-            // Кнопка "уровень" — круг с текстом "lvl" (или цифрой)
             _LevelButton(
               level: userLvl,
-              onTap: () =>
-                  openLevelInfo(context, userId: userId, level: userLvl),
+              onTap: () => openLevelInfo(context, userId: userId, level: userLvl),
             ),
-
-            SizedBox(width:  screenHeight * 0.12),
-
-            // Блок с опыт/монеты
+            SizedBox(width: screenHeight * 0.12),
             Expanded(
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Wrap(
                   spacing: 10,
                   runSpacing: 6,
-                  direction: Axis.vertical, // две строки, как на мокапе
+                  direction: Axis.vertical,
                   children: [
-                    _SmallInfoPill(
-                      label: 'опыт',
-                      value: '$xpCount',
-                      width: isNarrow ? 92 : 120,
-                      height: 20,
-                    ),
-                    _SmallInfoPill(
-                      label: 'монеты',
-                      value: '$coinsCount',
-                      width: isNarrow ? 92 : 120,
-                      height: 20,
-                    ),
+                    _SmallInfoPill(label: 'опыт', value: '$xpCount', width: isNarrow ? 92 : 120, height: 20),
+                    _SmallInfoPill(label: 'монеты', value: '$coinsCount', width: isNarrow ? 92 : 120, height: 20),
                   ],
                 ),
               ),
             ),
-
-            // Кнопка "настройки" — квадрат с перенесённой надписью
             _SettingsButton(onTap: () => openSettings(context, userId: userId)),
           ],
         ),
@@ -109,10 +101,10 @@ class _LevelButton extends StatelessWidget {
         alignment: Alignment.center,
         child: FittedBox(
           child: Text(
-            'lvl',
+            "$levelур" ,
             style: TextStyle(
               fontSize: 14,
-              color: Colors.black.withOpacity(0.9),
+              color: Colors.black.withValues(alpha: .9),
               fontWeight: FontWeight.w600,
               height: 1.0,
             ),

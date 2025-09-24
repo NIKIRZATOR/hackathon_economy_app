@@ -14,6 +14,8 @@ import 'package:hackathon_economy_app/features/bottom_bar/bottom_bar_container.d
 import '../../building_types/model/building_type_model.dart';
 import '../../building_types/repo/mock_building_type_repository.dart';
 
+import '../../user/model/user_model.dart';
+import '../../user/repo/mock_user_model_repository.dart';
 import '../models/building.dart';
 import '../models/drag_preview.dart';
 import '../models/user_building.dart';
@@ -47,6 +49,16 @@ class CityMapScreen extends StatefulWidget {
 
 class _CityMapScreenState extends State<CityMapScreen> {
   void doSetState(VoidCallback fn) => setState(fn);
+
+  final _userRepo = const MockUserModelRepository();
+  UserModel? _user;
+  final int _currentUserId = 1;         // заглушка
+
+  Future<void> _loadCurrentUser() async {
+    final u = await _userRepo.loadCurrentUserById(_currentUserId);
+    if (!mounted) return;
+    setState(() => _user = u);
+  }
 
   // размеры карты (логические ячейки)
   static const int rows = 32;
@@ -89,7 +101,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
 
   // ====== Локальное сохранение прогресса пользователя ======
   final _storage = UserCityStorage();
-  int _currentUserId = 1;         // заглушка
+
   String _currentUsername = "alice";
 
   // каталог типов по id (после загрузки из репо)
@@ -151,6 +163,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
   void initState() {
     super.initState();
     mapInit();
+    _loadCurrentUser();
   }
 
   @override
@@ -337,6 +350,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
             ],
           ),
           body: Column(
+
             children: [
               CityTopBar(
                 userId: _currentUserId,
@@ -345,6 +359,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
                 coinsCount: 100,
                 screenHeight: targetH,
                 screenWidth: targetW,
+                user: _user,
               ),
               // карта
               Expanded(child: buildMapCanvas()),
