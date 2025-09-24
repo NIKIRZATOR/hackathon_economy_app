@@ -1,15 +1,20 @@
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class Building {
-  final String id;
+  String id;
   String name;
   int level;
-  int x; // левый верхний (колонка)
-  int y; // левый верхний (строка)
-  int w; // ширина в клетках
-  int h; // высота в клетках
-  final Color fill;
-  final Color border;
+  int x, y; // позиция в ячейках
+  int w, h; // размер в ячейках
+  Color fill;
+  Color border;
+
+  // путь к PNG ассету (assets/images/buildings/bank.png)
+  String? imageAsset;
+
+  // декодированная картинка для Canvas
+  ui.Image? image;
 
   Building({
     required this.id,
@@ -21,13 +26,14 @@ class Building {
     required this.h,
     required this.fill,
     required this.border,
+    this.imageAsset,
+    this.image,
   });
 
-  Rect cellRect() => Rect.fromLTWH(x.toDouble(), y.toDouble(), w.toDouble(), h.toDouble());
-
+  // поворот: меняем w/h местами
   void rotateTranspose() {
-    final t = w;
+    final int tmp = w;
     w = h;
-    h = t;
+    h = tmp;
   }
 }

@@ -16,9 +16,20 @@ extension _CityMapStateInit on _CityMapScreenState {
   /// загрузка PNG в ui.Image
   Future<ui.Image> _loadUiImage(String assetPath) async {
     final data = await rootBundle.load(assetPath);
-    final bytes = data.buffer.asUint8List();
-    final c = Completer<ui.Image>();
-    ui.decodeImageFromList(bytes, (img) => c.complete(img));
-    return c.future;
+    final codec = await ui.instantiateImageCodec(data.buffer.asUint8List());
+    final frame = await codec.getNextFrame();
+    return frame.image;
+  }
+
+  Future<ui.Image?> _getOrLoadBuildingImage(String? assetPath) async {
+    if (assetPath == null) return null;
+    if (_imgCache.containsKey(assetPath)) return _imgCache[assetPath];
+    try {
+      final img = await _loadUiImage(assetPath);
+      _imgCache[assetPath] = img;
+      return img;
+    } catch (_) {
+      return null;
+    }
   }
 }

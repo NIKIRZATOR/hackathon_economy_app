@@ -25,16 +25,16 @@ import '../services/user_city_storage.dart';
 
 import '../widgets/confirm_button_overlay.dart';
 
-part 'parts/map_state_init.dart';   // init/dispose, загрузка текстур, тосты
-part 'parts/map_helpers.dart';      // конвертация координат, утилиты (учёт поворота)
-part 'parts/map_dialogs.dart';      // диалог инфо о здании
-part 'parts/map_move_drag.dart';    // перенос/drag&drop здания
-part 'parts/map_widgets.dart';      // UI: холст карты, кнопка подтверждения
+part 'parts/map_state_init.dart';   // init/dispose, _toast, _loadUiImage, listen камеры
+part 'parts/map_helpers.dart';      // координаты, confirm button pos, публичный spawn
+part 'parts/map_dialogs.dart';      // диалог инфо по зданию
+part 'parts/map_move_drag.dart';    // перенос/drag&drop
+part 'parts/map_widgets.dart';      // UI холста карты и overlay
 
 const int kMapRows = 32;
 const int kMapCols = 32;
 
-// угол визуального поворота карты: 45° по часовой
+// Визуальный поворот карты (если используешь в parts)
 const double kMapRotationRad = 3.141592653589793 / 4;
 
 class CityMapScreen extends StatefulWidget {
@@ -88,24 +88,40 @@ class _CityMapScreenState extends State<CityMapScreen> {
 
   // ====== Локальное сохранение прогресса пользователя ======
   final _storage = UserCityStorage();
-  int _currentUserId = 1; // берём из мока/топ-бара
-  String _currentUsername = "alice"; // из mock_user_model.json
+  int _currentUserId = 1;         // заглушка
+  String _currentUsername = "alice";
 
   // каталог типов по id (после загрузки из репо)
   final Map<int, BuildingType> _typesById = {};
 
   // при покупке из магазина — помним «клиентское» id и тип
-  // чтобы при подтверждении понять: новая постройка vs перенос существующей
   String? _pendingNewBuildingId;
   BuildingType? _pendingNewBuildingType;
+
+  // ==== Кэш картинок зданий (asset path -> ui.Image) ====
+  final Map<String, ui.Image> _imgCache = {};
+
+  /// Загрузить ui.Image из ассета с кэшем.
+  Future<ui.Image?> _getOrLoadBuildingImage(String? assetPath) async {
+    if (assetPath == null) return null;
+    final cached = _imgCache[assetPath];
+    if (cached != null) return cached;
+    try {
+      final img = await _loadUiImage(assetPath); // реализован в part: map_state_init.dart
+      _imgCache[assetPath] = img;
+      return img;
+    } catch (_) {
+      return null;
+    }
+  }
 
   /// инициализация экрана
   void mapInit() {
     terrain = buildStaticCityGrid(); // статичный 32×32 (0/1/2/3)
-    buildings.clear();               // пустая карта (без initialBuildingsFromPlacements)
+    buildings.clear();
     _tc.addListener(() => setState(() {}));
 
-    // загрузка примерной текстуры дороги (по желанию)
+    // пример текстуры дороги
     _loadUiImage('assets/images/road_gor.png').then((img) {
       if (mounted) setState(() => _roadTex = img);
     });
@@ -120,9 +136,14 @@ class _CityMapScreenState extends State<CityMapScreen> {
     _typesById.clear();
     for (final t in types) {
       _typesById[t.idBuildingType] = t;
+
+      // по желанию — прогреть кэш картинок заранее:
+      if (t.imageAsset != null) {
+        // не ждём, просто подгружаем
+        _getOrLoadBuildingImage(t.imageAsset);
+      }
     }
     await _loadUserCityFromStorage();
-
   }
 
   @override
@@ -133,7 +154,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
 
   @override
   void dispose() {
-    mapDispose();
+    mapDispose(); // в part: слушатели, чистка
     super.dispose();
   }
 
@@ -148,19 +169,31 @@ class _CityMapScreenState extends State<CityMapScreen> {
         final w = bt?.wSize ?? 2;
         final h = bt?.hSize ?? 2;
         final name = bt?.titleBuildingType ?? 'Здание #${ub.idUserBuilding}';
-        buildings.add(
-          Building(
-            id: ub.clientId ?? 'ub_${ub.idUserBuilding}',
-            name: name,
-            level: ub.currentLevel,
-            x: ub.x,
-            y: ub.y,
-            w: w,
-            h: h,
-            fill: Colors.blue.withValues(alpha: .65),
-            border: Colors.blueGrey,
-          ),
+        final imageAsset = bt?.imageAsset;
+
+        final b = Building(
+          id: ub.clientId ?? 'ub_${ub.idUserBuilding}',
+          name: name,
+          level: ub.currentLevel,
+          x: ub.x,
+          y: ub.y,
+          w: w,
+          h: h,
+          fill: Colors.blue.withValues(alpha: .65),
+          border: Colors.blueGrey,
+          imageAsset: imageAsset,
         );
+        buildings.add(b);
+
+        // асинхронно подтянем ui.Image и перерисуем
+        _getOrLoadBuildingImage(imageAsset).then((img) {
+          if (img != null && mounted) {
+            setState(() {
+              b.image = img;
+              _paintVersion++;
+            });
+          }
+        });
       }
       _paintVersion++;
     });
@@ -179,34 +212,35 @@ class _CityMapScreenState extends State<CityMapScreen> {
       state: 'active',
       placedAt: DateTime.now().toUtc(),
       lastUpgradeAt: null,
-      clientId: b.id, // связь с отрисованным Building
+      clientId: b.id,
     );
     await _storage.upsert(_currentUserId, ub);
+    // лог
+    // ignore: avoid_print
     print(
-        "[$_currentUsername] купил здание "
-            "(idType=${bt.idBuildingType}, title=${bt.titleBuildingType}) "
-            "по координатам (x=${b.x}, y=${b.y}), lvl=${b.level}"
+      "[$_currentUsername] купил здание "
+          "(idType=${bt.idBuildingType}, title=${bt.titleBuildingType}) "
+          "по координатам (x=${b.x}, y=${b.y}), lvl=${b.level}",
     );
   }
 
   // обновление позиции существующего здания
   Future<void> _persistUpdateBuildingPosition(Building b) async {
     await _storage.updatePositionByClientId(_currentUserId, b.id, b.x, b.y);
+    // ignore: avoid_print
     print(
-        "[$_currentUsername] переместил здание "
-            "(clientId=${b.id}, title=${b.name}) "
-            "на новые координаты (x=${b.x}, y=${b.y})"
+      "[$_currentUsername] переместил здание "
+          "(clientId=${b.id}, title=${b.name}) "
+          "на новые координаты (x=${b.x}, y=${b.y})",
     );
   }
 
   // ====== Публичный спавн из магазина ======
-
   void _spawnFromTypeAndEnterMove(BuildingType bt) {
-    // размеры из типа
     final int w = bt.wSize.clamp(1, kMapCols);
     final int h = bt.hSize.clamp(1, kMapRows);
 
-    // центр карты (в ячейках)
+    // центр карты
     final int startX = ((kMapCols - w) / 2).floor().clamp(0, kMapCols - w);
     final int startY = ((kMapRows - h) / 2).floor().clamp(0, kMapRows - h);
 
@@ -224,6 +258,7 @@ class _CityMapScreenState extends State<CityMapScreen> {
       h: h,
       fill: fill,
       border: border,
+      imageAsset: bt.imageAsset, // >>> картинка типа
     );
 
     doSetState(() {
@@ -254,6 +289,16 @@ class _CityMapScreenState extends State<CityMapScreen> {
             exceptId: b.id,
           ),
         );
+      }
+    });
+
+    // загрузим текстуру картинки здания и перерисуем
+    _getOrLoadBuildingImage(bt.imageAsset).then((img) {
+      if (img != null && mounted) {
+        setState(() {
+          b.image = img;
+          _paintVersion++;
+        });
       }
     });
   }

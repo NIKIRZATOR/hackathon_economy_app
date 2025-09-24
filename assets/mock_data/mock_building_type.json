@@ -7,7 +7,8 @@
     "w_size": 2,
     "cost": 100,
     "unlock_level": 1,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/city_hall.png"
   },
   {
     "id_building": 2,
@@ -17,7 +18,8 @@
     "w_size": 2,
     "cost": 50,
     "unlock_level": 1,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/grocery_store.png"
   },
   {
     "id_building": 3,
@@ -27,8 +29,10 @@
     "w_size": 3,
     "cost": 50,
     "unlock_level": 1,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/school.png"
   },
+
   {
     "id_building": 4,
     "title_building": "Банк",
@@ -37,8 +41,10 @@
     "w_size": 2,
     "cost": 100,
     "unlock_level": 2,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/bank.png"
   },
+
   {
     "id_building": 5,
     "title_building": "Кофейня",
@@ -47,8 +53,10 @@
     "w_size": 2,
     "cost": 100,
     "unlock_level": 2,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/cafe.png"
   },
+
   {
     "id_building": 6,
     "title_building": "Больница",
@@ -57,8 +65,10 @@
     "w_size": 3,
     "cost": 100,
     "unlock_level": 2,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/hospital.png"
   },
+
   {
     "id_building": 7,
     "title_building": "Полиция",
@@ -67,8 +77,10 @@
     "w_size": 2,
     "cost": 100,
     "unlock_level": 2,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/police_station.png"
   },
+
   {
     "id_building": 8,
     "title_building": "Кинотеатр",
@@ -76,7 +88,8 @@
     "h_size": 2,
     "w_size": 3,
     "unlock_level": 3,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/cinema.png"
   },
 
   {
@@ -86,7 +99,8 @@
     "h_size": 3,
     "w_size": 3,
     "unlock_level": 3,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/gas_station.png"
   },
   {
     "id_building": 10,
@@ -95,6 +109,7 @@
     "h_size": 2,
     "w_size": 3,
     "unlock_level": 3,
-    "max_upgrade_lvl": 5
+    "max_upgrade_lvl": 5,
+    "image_asset": "assets/images/buildings/fire_station.png"
   }
 ]
