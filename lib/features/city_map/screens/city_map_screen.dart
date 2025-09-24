@@ -30,6 +30,7 @@ part 'parts/map_helpers.dart';      // координаты, confirm button pos,
 part 'parts/map_dialogs.dart';      // диалог инфо по зданию
 part 'parts/map_move_drag.dart';    // перенос/drag&drop
 part 'parts/map_widgets.dart';      // UI холста карты и overlay
+part 'parts/open_build_from_map_dialog.dart';      // диалог интерфейса здания на карте
 
 const int kMapRows = 32;
 const int kMapCols = 32;
@@ -345,11 +346,9 @@ class _CityMapScreenState extends State<CityMapScreen> {
                 screenHeight: targetH,
                 screenWidth: targetW,
               ),
-
-              // холст карты (панорамирование/перенос, overlay)
+              // карта
               Expanded(child: buildMapCanvas()),
-
-              // нижняя панель, магазин возвращает BuildingType => спавним
+              // магазин | возвращает BuildingType -> строим здание
               CityMapBottomBar(
                 height: targetH,
                 wight: targetW,

@@ -1,6 +1,6 @@
 part of '../city_map_screen.dart';
 
-extension _CityMapStateWidgets on _CityMapScreenState {
+extension _CityMapWidget on _CityMapScreenState {
 
   /// центральная область: отрисовка карты, панорамирование/перенос, overlay
   Widget buildMapCanvas() {
@@ -41,7 +41,9 @@ extension _CityMapStateWidgets on _CityMapScreenState {
                         child: InteractiveViewer(
                           transformationController: _tc,
                           panEnabled: !_moveMode,
-                          scaleEnabled: false,           // зум отключён
+                          scaleEnabled: true,
+                          minScale: 0.4,
+                          maxScale: 1.5,
                           constrained: false,
                           boundaryMargin: const EdgeInsets.all(2000),
                           alignment: Alignment.center,
