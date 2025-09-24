@@ -6,13 +6,5 @@
     "user_lvl": 3,
     "user_xp": 950,
     "last_claim_at": "2025-09-22T08:00:00Z"
-  },
-  {
-    "user_id": 2,
-    "username": "bob",
-    "name": "Bob M.",
-    "user_lvl": 1,
-    "user_xp": 120,
-    "last_claim_at": "2025-09-22T07:55:00Z"
   }
 ]

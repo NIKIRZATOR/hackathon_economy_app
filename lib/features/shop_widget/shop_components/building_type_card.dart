@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../building_types/model/building_type_model.dart';
 import 'building_type_details_dialog.dart';
 
@@ -21,11 +20,14 @@ class BuildingTypeCard extends StatelessWidget {
     final selected = await showDialog<BuildingType>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => BuildingTypeDetailsDialog(bt: bt, screenHeight:screenHeight, screenWight: screenWight,),
+      builder: (_) => BuildingTypeDetailsDialog(
+        bt: bt,
+        screenHeight: screenHeight,
+        screenWight: screenWight,
+      ),
     );
 
     if (selected != null) {
-      // закрыть диалог магазина и поднять выбранный тип выше
       Navigator.of(context).pop<BuildingType>(selected);
     }
   }
@@ -50,7 +52,6 @@ class BuildingTypeCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // заглушка картинки (временно)
                 AspectRatio(
                   aspectRatio: 1,
                   child: DecoratedBox(
@@ -58,7 +59,15 @@ class BuildingTypeCard extends StatelessWidget {
                       color: Colors.grey.shade200,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Center(child: Icon(Icons.apartment, size: 36)),
+                    child: bt.imageAsset != null
+                        ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        bt.imageAsset!,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                        : const Center(child: Icon(Icons.apartment, size: 36)),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -69,16 +78,11 @@ class BuildingTypeCard extends StatelessWidget {
                   style: theme.textTheme.titleSmall,
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  'Размер: ${bt.wSize}×${bt.hSize}',
-                  style: theme.textTheme.bodySmall,
-                ),
+                Text('Размер: ${bt.wSize}×${bt.hSize}', style: theme.textTheme.bodySmall),
                 const SizedBox(height: 6),
                 Text(
                   '${bt.cost} р',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                 ),
               ],
             ),

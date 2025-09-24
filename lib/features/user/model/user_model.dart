@@ -1,10 +1,11 @@
+// user_model.dart
 class UserModel {
   final int? userId;
   final String username;
   final String? name;
   final int userLvl;
   final int userXp;
-  final DateTime? lastClaimAt; // TODO переделать на формат ДАТА_ВРЕМЯ
+  final DateTime? lastClaimAt;
 
   UserModel({
     this.userId,
@@ -21,7 +22,9 @@ class UserModel {
     name: json['name'],
     userLvl: json['user_lvl'] ?? 1,
     userXp: json['user_xp'] ?? 0,
-    lastClaimAt: json['last_claim_at']
+    lastClaimAt: json['last_claim_at'] != null
+        ? DateTime.parse(json['last_claim_at'])
+        : null,
   );
 
   Map<String, dynamic> toJson() => {
@@ -30,6 +33,6 @@ class UserModel {
     'name': name,
     'user_lvl': userLvl,
     'user_xp': userXp,
-    'last_claim_at': lastClaimAt,
+    'last_claim_at': lastClaimAt?.toIso8601String(),
   };
 }

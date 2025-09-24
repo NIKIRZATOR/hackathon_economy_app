@@ -31,21 +31,30 @@ extension _CityMapStateMoveDrag on _CityMapScreenState {
   }
 
   /// завершение перетаскивания
-  void _onMovePanEnd(DragEndDetails d, double cellSize) {
+  void _onMovePanEnd(DragEndDetails d, double cellSize) async {
     if (_dragging == null) return;
     final b = _dragging!;
     final prev = _preview;
 
-    doSetState(() {
-      if (prev != null && prev.isValid) {
-        b.x = prev.rect.left.toInt();
-        b.y = prev.rect.top.toInt();
-        _paintVersion++;
+    if (prev != null && prev.isValid) {
+      b.x = prev.rect.left.toInt();
+      b.y = prev.rect.top.toInt();
+      _paintVersion++;
+
+      if (_pendingNewBuildingId == b.id && _pendingNewBuildingType != null) {
+        await _persistNewBuilding(b, _pendingNewBuildingType!);
+        _pendingNewBuildingId = null;
+        _pendingNewBuildingType = null;
       } else {
-        b.x = _origX;
-        b.y = _origY;
-        if (prev != null) _toast('Нельзя поставить сюда.');
+        await _persistUpdateBuildingPosition(b);
       }
+    } else {
+      b.x = _origX;
+      b.y = _origY;
+      if (prev != null) _toast('Нельзя поставить сюда.');
+    }
+
+    doSetState(() {
       _dragging = null;
       _preview = null;
     });

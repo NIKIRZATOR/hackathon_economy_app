@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import '../../building_types/model/building_type_model.dart';
 
 class BuildingTypeDetailsDialog extends StatelessWidget {
@@ -30,7 +29,6 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
         height: h,
         child: Column(
           children: [
-            // заголовок
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
               child: Row(
@@ -39,10 +37,7 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                     child: Text(
                       bt.titleBuildingType,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                   IconButton(
@@ -54,13 +49,11 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
               ),
             ),
             const Divider(height: 1),
-            // контент
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    // слева картинка-заглушка
                     Expanded(
                       flex: 3,
                       child: AspectRatio(
@@ -69,16 +62,18 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: Colors.black.withValues(alpha: .1),
-                            ),
+                            border: Border.all(color: Colors.black.withValues(alpha: .1)),
                           ),
-                          child: const Center(child: Text('PNG здания')),
+                          child: bt.imageAsset != null
+                              ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.asset(bt.imageAsset!, fit: BoxFit.cover),
+                          )
+                              : const Center(child: Icon(Icons.apartment, size: 48)),
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // справа описание + кнопка
                     Expanded(
                       flex: 4,
                       child: Column(
@@ -91,13 +86,13 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                      Text(bt.description!),
-                                      Text(
-                                        'Размер: ${bt.wSize}×${bt.hSize}\n'
-                                        'Макс. апгрейд: ${bt.maxUpgradeLvl}\n'
-                                        'Открывается на уровне: ${bt.unlockLevel}\n'
-                                        'Стоимость: ${bt.cost} р',
-                                      ),
+                                    if (bt.description != null) Text(bt.description!),
+                                    Text(
+                                      'Размер: ${bt.wSize}×${bt.hSize}\n'
+                                          'Макс. апгрейд: ${bt.maxUpgradeLvl}\n'
+                                          'Открывается на уровне: ${bt.unlockLevel}\n'
+                                          'Стоимость: ${bt.cost} р',
+                                    ),
                                   ],
                                 ),
                               ),
@@ -107,10 +102,7 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                           SizedBox(
                             height: 40,
                             child: FilledButton(
-                              onPressed: () {
-                                // вернуть выбранный тип наружу
-                                Navigator.of(context).pop(bt);
-                              },
+                              onPressed: () => Navigator.of(context).pop(bt),
                               child: const Text('Купить'),
                             ),
                           ),

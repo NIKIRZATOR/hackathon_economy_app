@@ -13,20 +13,5 @@
     "id_user": 1,
     "id_resource": 5,
     "amount": 35
-  },
-  {
-    "id_user": 2,
-    "id_resource": 1,
-    "amount": 300
-  },
-  {
-    "id_user": 2,
-    "id_resource": 2,
-    "amount": 20
-  },
-  {
-    "id_user": 2,
-    "id_resource": 6,
-    "amount": 100
   }
 ]
