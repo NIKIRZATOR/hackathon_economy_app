@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
-
-
-/// ==== Размещение на карте ====
+// размещение на карте
 class BuildingPlacement {
   final String defCode;
   final int x; // клетка (левая верхняя)
@@ -9,9 +6,9 @@ class BuildingPlacement {
   const BuildingPlacement({required this.defCode, required this.x, required this.y});
 }
 
-/// ==== Ручной статичный грид 32×32 ====
-/// 0 — пусто, 1 — дорога, 2 — "занято зданием" (если решишь отмечать), 3 — вода.
-/// Сейчас все нули — заполняй вручную цифрами 1/2/3.
+// ручной статичный грид 32×32
+// 0 — пусто, 1 — дорога, 2 — "занято зданием", 3 — вода.
+// Сейчас все нули — заполняй вручную цифрами 1/2/3.
 List<List<int>> buildStaticCityGrid() {
   const raw = [
     "00000000000000000000000000000000", //  0
