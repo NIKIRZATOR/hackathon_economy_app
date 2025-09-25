@@ -4,7 +4,7 @@ extension _OpenBuildCardFromMapDialog on _CityMapScreenState {
 
   /// Диалог сведений о здании + действия: Повернуть/Переместить/Убрать
   void _openBuildingDialog(Building b) async {
-    await showDialog(
+    await showDialogWithSound(
       context: context,
       builder: (ctx) {
         return AlertDialog(
@@ -35,6 +35,7 @@ extension _OpenBuildCardFromMapDialog on _CityMapScreenState {
           actions: [
             TextButton(
               onPressed: () {
+                AudioManager().playSfx('build.mp3');
                 final origW = b.w, origH = b.h;
                 b.rotateTranspose();
                 final ok = canPlaceAt(
@@ -71,6 +72,7 @@ extension _OpenBuildCardFromMapDialog on _CityMapScreenState {
             ),
             TextButton(
               onPressed: () {
+                AudioManager().playSfx('destroy.mp3');
                 doSetState(() {
                   buildings.removeWhere((e) => e.id == b.id);
                   _paintVersion++;

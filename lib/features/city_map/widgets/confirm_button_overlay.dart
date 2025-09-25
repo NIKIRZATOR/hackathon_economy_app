@@ -21,7 +21,10 @@ class ConfirmButtonOverlay extends StatelessWidget {
         color: Colors.green,
         child: InkWell(
           customBorder: const CircleBorder(),
-          onTap: onConfirm,
+          enableFeedback: false,
+          onTap: () {
+            onConfirm();
+          },
           child: const Padding(
             padding: EdgeInsets.all(6.0),
             child: Icon(Icons.check, color: Colors.white, size: 18),
