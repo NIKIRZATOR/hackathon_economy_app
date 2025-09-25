@@ -8,30 +8,7 @@ A new Flutter project.
 
 ```text
 C:.
-├───.dart_tool
-│   ├───chrome-device
-│   │   └───Default
-│   └───dartpad
-├───.idea
-│   ├───caches
-│   └───libraries
-├───android
-│   ├───app
-│   │   └───src
-│   │       ├───debug
-│   │       ├───main
-│   │       │   ├───java
-│   │       │   │   └───io
-│   │       │   │       └───flutter
-│   │       │   │           └───plugins
-│   │       │   ├───kotlin
-│   │       │   │   └───com
-│   │       │   │       └───example
-│   │       │   │           └───hackathon_economy_app
-│   │       │   └───res
-│   │       └───profile
-│   └───gradle
-│       └───wrapper
+│
 ├───assets
 │   ├───audio
 │   │   ├───music
@@ -40,23 +17,6 @@ C:.
 │   │   ├───buildings
 │   │   └───Misha
 │   └───mock_data
-├───build
-├───ios
-│   ├───Flutter
-│   │   └───ephemeral
-│   ├───Runner
-│   │   ├───Assets.xcassets
-│   │   │   ├───AppIcon.appiconset
-│   │   │   └───LaunchImage.imageset
-│   │   └───Base.lproj
-│   ├───Runner.xcodeproj
-│   │   ├───project.xcworkspace
-│   │   │   └───xcshareddata
-│   │   └───xcshareddata
-│   │       └───xcschemes
-│   ├───Runner.xcworkspace
-│   │   └───xcshareddata
-│   └───RunnerTests
 ├───lib
 │   ├───core
 │   │   ├───services
