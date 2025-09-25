@@ -27,8 +27,6 @@ import '../services/placement_rules.dart';
 import '../services/static_city_layout.dart';
 import '../services/user_city_storage.dart';
 
-import '../widgets/confirm_button_overlay.dart';
-
 part 'parts/map_constants.dart';
 part 'parts/map_user_init.dart';
 part 'parts/map_types_catalog.dart'; // каталог типов
@@ -84,13 +82,6 @@ class _CityMapScreenState extends State<CityMapScreen>
     } catch (_) {
       return null;
     }
-  }
-
-  // подгрузка дорожной текстуры при старте
-  void _loadRoadTexture() {
-    _loadUiImage('assets/images/road_gor.png').then((img) {
-      if (mounted) setState(() => _roadTex = img);
-    });
   }
 
   // каталог типов по id (после загрузки из репо)

@@ -11,21 +11,27 @@ extension _CityMapStateHelpers on _CityMapScreenState {
     final r = m.transform3(v);
     return Offset(r.x, r.y);
   }
+}
+// круглая кнопка с галочкой
+class _ConfirmBtn extends StatelessWidget {
+  const _ConfirmBtn({required this.onTap, this.size = 30});
+  final VoidCallback onTap;
+  final double size;
 
-  // позиция кнопки подтверждения (галочка)
-  Offset? _confirmBtnViewportPos(double cellSize) {
-    if (!_moveMode || _moveRequestedId == null) return null;
-    final b = buildings.firstWhere(
-          (e) => e.id == _moveRequestedId,
-      orElse: () => Building(
-        id: '', name: '', level: 0, x: -9999, y: -9999, w: 1, h: 1,
-        fill: Colors.transparent, border: Colors.transparent,
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: const Color(0xFF4CAF50),
+          shape: BoxShape.circle,
+          boxShadow: const [BoxShadow(blurRadius: 6, offset: Offset(0, 2), color: Colors.black26)],
+        ),
+        child: const Icon(Icons.check, color: Colors.white),
       ),
     );
-    if (b.id.isEmpty) return null;
-
-    final scenePt = Offset((b.x + b.w) * cellSize, b.y * cellSize);
-    final vp = _sceneToViewport(scenePt);
-    return vp + const Offset(8, -8);
   }
 }
