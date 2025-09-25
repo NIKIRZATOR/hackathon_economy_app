@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:hackathon_economy_app/features/user/model/user_model.dart';
+import 'package:hackathon_economy_app/app/models/user_model.dart';
 import 'top_bar_functions.dart';
 
 class CityTopBar extends StatelessWidget {
   const CityTopBar({
     super.key,
-    this.user, // теперь необязательный
+    this.user, // необязательный
     required this.userId,
     required this.userLvl,
     required this.xpCount,
     required this.coinsCount,
     required this.screenHeight,
-    required this.screenWidth,
+    required this.screenWidth, required this.cityTitle,
   });
 
   final UserModel? user; // nullable
   final int userId;
+  final String cityTitle;
   final int userLvl;
   final int xpCount;
   final int coinsCount;
@@ -27,13 +28,12 @@ class CityTopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final barHeight = screenHeight * 0.08;
 
-    if (user == null) {
-      // показываем лоадер на месте топ-бара
-      return SizedBox(
-        height: barHeight,
-        child: const Center(child: CircularProgressIndicator()),
-      );
-    }
+    // if (user == null) {
+    //   return SizedBox(
+    //     height: barHeight,
+    //     child: const Center(child: CircularProgressIndicator()),
+    //   );
+    // }
 
     final isNarrow = screenWidth < 420;
 
@@ -45,7 +45,7 @@ class CityTopBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFD9D9D9),
           border: Border(
-            bottom: BorderSide(color: Colors.black.withOpacity(0.25), width: 1),
+            bottom: BorderSide(color: Colors.black.withValues(alpha: .25), width: 1),
           ),
         ),
         child: Row(

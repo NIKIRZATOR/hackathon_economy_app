@@ -13,11 +13,11 @@ import 'package:hackathon_economy_app/features/bottom_bar/bottom_bar_container.d
 import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
+import '../../../app/repository/auth_repository.dart';
 import '../../building_types/model/building_type_model.dart';
 import '../../building_types/repo/mock_building_type_repository.dart';
 
-import '../../user/model/user_model.dart';
-import '../../user/repo/mock_user_model_repository.dart';
+import '../../../app/models/user_model.dart';
 import '../models/building.dart';
 import '../models/drag_preview.dart';
 import '../models/user_building.dart';
@@ -29,21 +29,22 @@ import '../services/user_city_storage.dart';
 
 import '../widgets/confirm_button_overlay.dart';
 
-part 'parts/map_state_init.dart';   // init/dispose, _toast, _loadUiImage, listen камеры
-part 'parts/map_helpers.dart';      // координаты, confirm button pos, публичный spawn
-part 'parts/map_dialogs.dart';      // диалог инфо по зданию
-part 'parts/map_move_drag.dart';    // перенос/drag&drop
-part 'parts/map_widgets.dart';      // UI холста карты и overlay
-part 'parts/open_build_from_map_dialog.dart';      // диалог интерфейса здания на карте
+part 'parts/map_state_init.dart'; // init/dispose, _toast, _loadUiImage, listen камеры
+part 'parts/map_helpers.dart'; // координаты, confirm button pos, публичный spawn
+part 'parts/map_dialogs.dart'; // диалог инфо по зданию
+part 'parts/map_move_drag.dart'; // перенос/drag&drop
+part 'parts/map_widgets.dart'; // UI холста карты и overlay
+part 'parts/open_build_from_map_dialog.dart'; // диалог интерфейса здания на карте
 
 const int kMapRows = 32;
 const int kMapCols = 32;
 
-// Визуальный поворот карты (если используешь в parts)
 const double kMapRotationRad = 3.141592653589793 / 4;
 
 class CityMapScreen extends StatefulWidget {
-  const CityMapScreen({super.key});
+  const CityMapScreen({super.key, this.incomingUser});
+
+  final UserModel? incomingUser;
 
   @override
   State<CityMapScreen> createState() => _CityMapScreenState();
@@ -52,15 +53,11 @@ class CityMapScreen extends StatefulWidget {
 class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserver {
   void doSetState(VoidCallback fn) => setState(fn);
 
-  final _userRepo = const MockUserModelRepository();
   UserModel? _user;
-  final int _currentUserId = 1;         // заглушка
+  final _authRepo = AuthRepository();
 
-  Future<void> _loadCurrentUser() async {
-    final u = await _userRepo.loadCurrentUserById(_currentUserId);
-    if (!mounted) return;
-    setState(() => _user = u);
-  }
+  final int _currentUserId = 1; // заглушка
+  final int _coins = 100; //заглушка
 
   // размеры карты (логические ячейки)
   static const int rows = 32;
@@ -122,7 +119,9 @@ class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserv
     final cached = _imgCache[assetPath];
     if (cached != null) return cached;
     try {
-      final img = await _loadUiImage(assetPath); // реализован в part: map_state_init.dart
+      final img = await _loadUiImage(
+        assetPath,
+      ); // реализован в part: map_state_init.dart
       _imgCache[assetPath] = img;
       return img;
     } catch (_) {
@@ -161,14 +160,54 @@ class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserv
     await _loadUserCityFromStorage();
   }
 
+  Future<void> _initUser() async {
+    final cached = await _authRepo.getSavedUser();
+    final incoming = widget.incomingUser;
+
+    UserModel? effective;
+
+    if (incoming == null) {
+      // нет авторизованного — используем кеш, если есть
+      effective = cached;
+    } else {
+      if (!_sameUserCore(cached, incoming)) {
+        // Отличается — перезапишем кеш актуальными данными
+        await _authRepo.saveUser(incoming);
+        effective = await _authRepo.getSavedUser();
+      } else {
+        // Совпадает — оставляем кеш
+        effective = cached ?? incoming;
+      }
+    }
+
+    setState(() => _user = effective);
+  }
+
+  // Сравнение важнейших полей (id, lvl, xp, cityTitle, username)
+  bool _sameUserCore(UserModel? a, UserModel b) {
+    if (a == null) return false;
+    return (a.userId == b.userId) &&
+        (a.username == b.username) &&
+        (a.userLvl == b.userLvl) &&
+        (a.userXp == b.userXp) &&
+        ((a.cityTitle ?? '') == (b.cityTitle ?? '')) &&
+        _sameDateTime(a.lastClaimAt, b.lastClaimAt);
+  }
+
+  bool _sameDateTime(DateTime? x, DateTime? y) {
+    if (x == null && y == null) return true;
+    if (x == null || y == null) return false;
+    return x.toUtc().millisecondsSinceEpoch == y.toUtc().millisecondsSinceEpoch;
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    mapInit();
-    _loadCurrentUser();
     AudioManager().setMusicVolume(0.3);
     AudioManager().playMusic('background.mp3');
+    mapInit();
+    _initUser();
   }
 
   @override
@@ -249,8 +288,8 @@ class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserv
     // ignore: avoid_print
     print(
       "[$_currentUsername] купил здание "
-          "(idType=${bt.idBuildingType}, title=${bt.titleBuildingType}) "
-          "по координатам (x=${b.x}, y=${b.y}), lvl=${b.level}",
+      "(idType=${bt.idBuildingType}, title=${bt.titleBuildingType}) "
+      "по координатам (x=${b.x}, y=${b.y}), lvl=${b.level}",
     );
   }
 
@@ -260,8 +299,8 @@ class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserv
     // ignore: avoid_print
     print(
       "[$_currentUsername] переместил здание "
-          "(clientId=${b.id}, title=${b.name}) "
-          "на новые координаты (x=${b.x}, y=${b.y})",
+      "(clientId=${b.id}, title=${b.name}) "
+      "на новые координаты (x=${b.x}, y=${b.y})",
     );
   }
 
@@ -306,7 +345,12 @@ class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserv
         final cell = _lastCellSize!;
         _dragging = null; // пусть panStart отработает
         _preview = DragPreview(
-          Rect.fromLTWH(b.x.toDouble(), b.y.toDouble(), b.w.toDouble(), b.h.toDouble()),
+          Rect.fromLTWH(
+            b.x.toDouble(),
+            b.y.toDouble(),
+            b.w.toDouble(),
+            b.h.toDouble(),
+          ),
           canPlaceAt(
             terrain: terrain,
             buildings: buildings,
@@ -342,6 +386,13 @@ class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserv
     final double targetW = isMobile ? media.size.width : kPhoneWidth;
     final double targetH = isMobile ? media.size.height : kPhoneHeight;
 
+    // значения для топ-бара из local_storage
+    // если его ещё нет — подставим безопасные дефолты
+    final userId   = _user?.userId ?? 0;
+    final userLvl  = _user?.userLvl ?? 1;
+    final xpCount  = _user?.userXp  ?? 0;
+    final cityName = _user?.cityTitle ?? '—';
+
     return Center(
       child: SizedBox(
         width: targetW,
@@ -366,16 +417,15 @@ class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserv
             ],
           ),
           body: Column(
-
             children: [
               CityTopBar(
-                userId: _currentUserId,
-                userLvl: 2,
-                xpCount: 25,
-                coinsCount: 100,
+                userId: userId,
+                userLvl: userLvl,
+                xpCount: xpCount,
+                coinsCount: _coins,
+                cityTitle: cityName,
                 screenHeight: targetH,
                 screenWidth: targetW,
-                user: _user,
               ),
               // карта
               Expanded(child: buildMapCanvas()),
