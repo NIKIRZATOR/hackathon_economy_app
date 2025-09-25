@@ -1,6 +1,7 @@
 part of '../city_map_screen.dart';
 
 extension _CityMapWidget on _CityMapScreenState {
+  double _currentScale() => _tc.value.getMaxScaleOnAxis();
 
   /// центральная область: отрисовка карты, панорамирование/перенос, overlay
   Widget buildMapCanvas() {
@@ -10,15 +11,31 @@ extension _CityMapWidget on _CityMapScreenState {
         final maxH = constraints.maxHeight;
 
         // максимально возможная квадратная сетка внутри доступной области
-        final baseCell = min(maxW / _CityMapScreenState.cols, maxH / _CityMapScreenState.rows);
+        final baseCell =
+        min(maxW / _CityMapScreenState.cols, maxH / _CityMapScreenState.rows);
 
-        // настраиваемый множитель, ссылка на 51 строку
+        // настраиваемый множитель
         final realCell = (baseCell * cellSizeMultiplier).clamp(6.0, 64.0);
-
         _lastCellSize = realCell;
 
         final mapWidthPx  = _CityMapScreenState.cols * realCell;
         final mapHeightPx = _CityMapScreenState.rows * realCell;
+
+        // активное здание (для позиции кнопки)
+        Building? active;
+        if (_moveMode && _moveRequestedId != null) {
+          active = buildings.cast<Building?>().firstWhere(
+                (e) => e!.id == _moveRequestedId,
+            orElse: () => null,
+          );
+        }
+
+        // кнопка должна быть фиксированного экранного размера
+        final scale = _currentScale();
+        final invScale = scale == 0 ? 1.0 : (1.0 / scale);
+
+        // пиксельный сдвиг относительно угла
+        const pxShift = Offset(8, -8);
 
         return Center(
           child: ClipRRect(
@@ -31,12 +48,10 @@ extension _CityMapWidget on _CityMapScreenState {
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // область панорамирования (масштаб выключен)
                   Listener(
                     onPointerSignal: (ps) {},
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTapDown: (d) => _onTapAt(d.localPosition, realCell),
                       child: Center(
                         child: InteractiveViewer(
                           transformationController: _tc,
@@ -51,19 +66,60 @@ extension _CityMapWidget on _CityMapScreenState {
                             width: mapWidthPx,
                             height: mapHeightPx,
                             child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              // тапы в scene-координатах
+                              onTapDown: (d) => _onTapInScene(d.localPosition, realCell),
                               onPanStart: _moveMode ? (d) => _onMovePanStart(d, realCell) : null,
                               onPanUpdate: _moveMode ? (d) => _onMovePanUpdate(d, realCell) : null,
-                              onPanEnd: _moveMode ? (d) => _onMovePanEnd(d, realCell) : null,
-                              child: CustomPaint(
-                                painter: MapPainter(
-                                  terrain: terrain,
-                                  buildings: buildings,
-                                  cellSize: realCell,
-                                  borderThickness: 4.0,
-                                  dragPreview: _preview,
-                                  version: _paintVersion,
-                                  roadTexture: _roadTex,
-                                ),
+                              onPanEnd:   _moveMode ? (d) => _onMovePanEnd(d, realCell)   : null,
+                              child: Stack(
+                                children: [
+                                  // рендер карты
+                                  CustomPaint(
+                                    painter: MapPainter(
+                                      terrain: terrain,
+                                      buildings: buildings,
+                                      cellSize: realCell,
+                                      borderThickness: 4.0,
+                                      dragPreview: _preview,
+                                      version: _paintVersion,
+                                      roadTexture: _roadTex,
+                                    ),
+                                  ),
+                                  // кнопка подтверждения переноса
+                                  if (_moveMode && active != null)
+                                    Positioned(
+                                      // привязка к наружному верхнему правому углу
+                                      // угол в scene-пикселях
+                                      left: (active.x + active.w) * realCell + pxShift.dx,
+                                      top:  (active.y) * realCell + pxShift.dy,
+                                      child: Transform(
+                                        alignment: Alignment.center,
+                                        transform: Matrix4.diagonal3Values(invScale, invScale, 1),
+                                        child: _ConfirmBtn(
+                                          onTap: () async {
+                                            final b = active!;
+                                            if (_pendingNewBuildingId == b.id &&
+                                                _pendingNewBuildingType != null) {
+                                              await _persistNewBuilding(b, _pendingNewBuildingType!);
+                                              _pendingNewBuildingId = null;
+                                              _pendingNewBuildingType = null;
+                                            } else {
+                                              await _persistUpdateBuildingPosition(b);
+                                            }
+                                            AudioManager().playSfx('build.mp3');
+                                            doSetState(() {
+                                              _moveMode = false;
+                                              _moveRequestedId = null;
+                                              _dragging = null;
+                                              _preview = null;
+                                            });
+                                            _toast('Перенос завершён.');
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                           ),
@@ -71,36 +127,6 @@ extension _CityMapWidget on _CityMapScreenState {
                       ),
                     ),
                   ),
-
-                  // плавающая кнопка подтверждения переноса
-                  if (_moveMode && _moveRequestedId != null)
-                    ConfirmButtonOverlay(
-                      viewportPos: _confirmBtnViewportPos(realCell),
-                      onConfirm: () async {
-                        // найдём активное здание
-                        final b = buildings.firstWhere((e) => e.id == _moveRequestedId);
-
-                        // если это новое (только что купленное) — сохраняем как новую запись
-                        if (_pendingNewBuildingId == b.id && _pendingNewBuildingType != null) {
-                          await _persistNewBuilding(b, _pendingNewBuildingType!);
-                          _pendingNewBuildingId = null;
-                          _pendingNewBuildingType = null;
-                        } else {
-                          // иначе — это перенос существующего: обновим координаты
-                          await _persistUpdateBuildingPosition(b);
-                        }
-                        
-                        AudioManager().playSfx('build.mp3');
-                        
-                        doSetState(() {
-                          _moveMode = false;
-                          _moveRequestedId = null;
-                          _dragging = null;
-                          _preview = null;
-                        });
-                        _toast('Перенос завершён.');
-                      },
-                    ),
                 ],
               ),
             ),
@@ -110,4 +136,3 @@ extension _CityMapWidget on _CityMapScreenState {
     );
   }
 }
-

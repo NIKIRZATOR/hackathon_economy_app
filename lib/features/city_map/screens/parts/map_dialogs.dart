@@ -13,9 +13,8 @@ extension _SearchAndTapBuild on _CityMapScreenState {
   }
 
   // нажатие по карте (если не перенос) — открываем диалог здания
-  void _onTapAt(Offset viewportPos, double cellSize) {
+  void _onTapInScene(Offset scene, double cellSize) {
     if (_moveMode) return;
-    final scene = _toScene(viewportPos);
     final int x = (scene.dx / cellSize).floor();
     final int y = (scene.dy / cellSize).floor();
     if (x < 0 || y < 0 || x >= kMapCols || y >= kMapRows) return;
