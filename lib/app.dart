@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'features/city_map/screens/city_map_screen.dart';
+import 'features/auth/screens/auth_screen.dart';
 
 class CapitalCityApp extends StatelessWidget {
   const CapitalCityApp({super.key});
@@ -10,7 +10,7 @@ class CapitalCityApp extends StatelessWidget {
       title: 'Город Капитала — MVP Map',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-      home: const CityMapScreen(),
+      home: const AuthScreen(),
     );
   }
 }
