@@ -89,7 +89,9 @@ extension _CityMapWidget on _CityMapScreenState {
                           // иначе — это перенос существующего: обновим координаты
                           await _persistUpdateBuildingPosition(b);
                         }
-
+                        
+                        AudioManager().playSfx('build.mp3');
+                        
                         doSetState(() {
                           _moveMode = false;
                           _moveRequestedId = null;

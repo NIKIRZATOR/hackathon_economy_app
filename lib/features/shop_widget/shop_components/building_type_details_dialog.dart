@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 import '../../building_types/model/building_type_model.dart';
 
 class BuildingTypeDetailsDialog extends StatelessWidget {
@@ -102,7 +103,10 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                           SizedBox(
                             height: 40,
                             child: FilledButton(
-                              onPressed: () => Navigator.of(context).pop(bt),
+                              onPressed: () {
+                                AudioManager().playSfx('cash_register.mp3');
+                                Navigator.of(context).pop(bt);
+                              },
                               child: const Text('Купить'),
                             ),
                           ),

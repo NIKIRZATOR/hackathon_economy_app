@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 
 import '../building_types/model/building_type_model.dart';
 import '../building_types/repo/mock_building_type_repository.dart';
@@ -28,7 +29,7 @@ Future<void> openTasks(BuildContext context) async {
     if (nav.canPop()) nav.pop();
 
     // Показываем диалог с заданиями
-    await showDialog<void>(
+    await showDialogWithSound<void>(
       context: context,
       barrierDismissible: true,
       builder: (_) => TasksDialog(tasks: tasks),
@@ -66,7 +67,7 @@ Future<BuildingType?> openShop(
     if (nav.canPop()) nav.pop();
 
     // возвращаем Future из showDialog
-    return showDialog<BuildingType>(
+    return showDialogWithSound<BuildingType>(
       context: context,
       barrierDismissible: true,
       builder: (_) => BuildingShopDialog(

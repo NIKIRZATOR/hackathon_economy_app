@@ -10,6 +10,8 @@ import 'package:vector_math/vector_math_64.dart' as v_math;
 
 import 'package:hackathon_economy_app/features/top_bar/city_top_bar.dart';
 import 'package:hackathon_economy_app/features/bottom_bar/bottom_bar_container.dart';
+import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
+import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 import '../../building_types/model/building_type_model.dart';
 import '../../building_types/repo/mock_building_type_repository.dart';
@@ -47,7 +49,7 @@ class CityMapScreen extends StatefulWidget {
   State<CityMapScreen> createState() => _CityMapScreenState();
 }
 
-class _CityMapScreenState extends State<CityMapScreen> {
+class _CityMapScreenState extends State<CityMapScreen> with WidgetsBindingObserver {
   void doSetState(VoidCallback fn) => setState(fn);
 
   final _userRepo = const MockUserModelRepository();
@@ -162,14 +164,28 @@ class _CityMapScreenState extends State<CityMapScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     mapInit();
     _loadCurrentUser();
+    AudioManager().setMusicVolume(0.3);
+    AudioManager().playMusic('background.mp3');
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     mapDispose(); // в part: слушатели, чистка
+    AudioManager().stopMusic();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      AudioManager().pauseMusic();
+    } else if (state == AppLifecycleState.resumed) {
+      AudioManager().resumeMusic();
+    }
   }
 
   // ====== Persist helpers ======

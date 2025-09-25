@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import '../../building_types/model/building_type_model.dart';
 import 'building_type_details_dialog.dart';
 
@@ -17,7 +18,7 @@ class BuildingTypeCard extends StatelessWidget {
   final double screenWight;
 
   void _openDetails(BuildContext context) async {
-    final selected = await showDialog<BuildingType>(
+    final selected = await showDialogWithSound<BuildingType>(
       context: context,
       barrierDismissible: true,
       builder: (_) => BuildingTypeDetailsDialog(
