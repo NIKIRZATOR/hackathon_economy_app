@@ -3,8 +3,10 @@ part of '../city_map_screen.dart';
 extension _CityTypeCatalog on _CityMapScreenState {
 
   Future<void> _loadTypesThenUserCity() async {
-    final repo = MockBuildingTypeRepository();
-    final types = await repo.loadAll();
+
+    final btRepo = BuildingTypeRepository();
+    final types = await btRepo.getAll(); //
+
     _typesById.clear();
     for (final t in types) {
       _typesById[t.idBuildingType] = t;

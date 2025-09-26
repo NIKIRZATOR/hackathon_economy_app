@@ -2,6 +2,7 @@ class ResourceItem {
   final int? idItem;
   final String code;
   final String title;
+  final int resourceCost;
   final bool isCurrency;
   final bool isStorable;
 
@@ -9,6 +10,7 @@ class ResourceItem {
     this.idItem,
     required this.code,
     required this.title,
+    required this.resourceCost,
     required this.isCurrency,
     required this.isStorable,
   });
@@ -17,6 +19,7 @@ class ResourceItem {
     idItem: json['id_item'],
     code: json['code'] ?? '',
     title: json['title'] ?? '',
+    resourceCost: json['resourceCost'] ?? '',
     isCurrency: json['is_currency'] ?? false,
     isStorable: json['is_storable'] ?? true,
   );
@@ -25,6 +28,7 @@ class ResourceItem {
     if (idItem != null) 'id_item': idItem,
     'code': code,
     'title': title,
+    'resourceCost': resourceCost,
     'is_currency': isCurrency,
     'is_storable': isStorable,
   };

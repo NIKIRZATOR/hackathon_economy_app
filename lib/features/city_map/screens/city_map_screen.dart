@@ -15,6 +15,7 @@ import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 import '../../../app/repository/auth_repository.dart';
 import '../../building_types/model/building_type_model.dart';
+import '../../building_types/repo/building_type_repository.dart';
 import '../../building_types/repo/mock_building_type_repository.dart';
 
 import '../../../app/models/user_model.dart';
