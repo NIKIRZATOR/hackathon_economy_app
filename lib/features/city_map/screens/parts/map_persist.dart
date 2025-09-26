@@ -2,14 +2,14 @@ part of '../city_map_screen.dart';
 
 // локальное сохранение прогресса пользователя
 final _storage = UserCityStorage();
+final _ubRepo = UserBuildingRepository();
 
 extension _CityPersistSaveLoadUpdate on _CityMapScreenState {
-
-// загрузка сохранённых построек
+  // Загрузка зданий из локала и отрисовка
   Future<void> _loadUserCityFromStorage() async {
     final saved = await _storage.load(_userId);
     doSetState(() {
-      for (final ub in saved.where((e) => e.state == 'active')) {
+      for (final ub in saved /* статусы не используем, рендерим все */) {
         final bt = _typesById[ub.idBuildingType];
         final w = bt?.wSize ?? 2;
         final h = bt?.hSize ?? 2;
@@ -44,23 +44,23 @@ extension _CityPersistSaveLoadUpdate on _CityMapScreenState {
     });
   }
 
-// сохранение новой постройки (после первого подтверждения размещения)
+  // Сохранение новой постройки (после подтверждения размещения)
   Future<void> _persistNewBuilding(Building b, BuildingType bt) async {
     final newId = await _storage.nextLocalId(_userId);
-    final ub = UserBuilding(
+    final ub = UserBuildingModel(
       idUserBuilding: newId,
       idUser: _userId,
       idBuildingType: bt.idBuildingType,
       x: b.x,
       y: b.y,
       currentLevel: b.level,
-      state: 'active',
+      state: 'placed', // фиксируем единственный статус
       placedAt: DateTime.now().toUtc(),
       lastUpgradeAt: null,
       clientId: b.id,
     );
     await _storage.upsert(_userId, ub);
-    // лог
+
     // ignore: avoid_print
     print(
       "[$_username] купил здание "
@@ -69,7 +69,7 @@ extension _CityPersistSaveLoadUpdate on _CityMapScreenState {
     );
   }
 
-// обновление позиции существующего здания
+  // Обновление позиции существующего здания
   Future<void> _persistUpdateBuildingPosition(Building b) async {
     await _storage.updatePositionByClientId(_userId, b.id, b.x, b.y);
     // ignore: avoid_print
@@ -78,5 +78,23 @@ extension _CityPersistSaveLoadUpdate on _CityMapScreenState {
           "(clientId=${b.id}, title=${b.name}) "
           "на новые координаты (x=${b.x}, y=${b.y})",
     );
+  }
+}
+
+// Синхронизация: тянем с сервера, нормализуем, сохраняем в локал
+Future<void> _syncUserBuildingsFromServer(int userId) async {
+  try {
+    final serverList = await _ubRepo.getByUser(userId);
+
+    // принудительно ставим state='placed' и гарантируем clientId
+    final normalized = serverList.map((e) {
+      final clientId = e.clientId ?? 'ub_${e.idUserBuilding}';
+      return e.copyWith(state: 'placed', clientId: clientId);
+    }).toList();
+
+    await _storage.saveAll(userId, normalized);
+  } catch (e) {
+    // ignore: avoid_print
+    print('Не удалось синхронизировать постройки: $e');
   }
 }

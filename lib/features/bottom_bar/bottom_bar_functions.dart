@@ -3,7 +3,6 @@ import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 
 import '../building_types/model/building_type_model.dart';
 import '../building_types/repo/building_type_repository.dart';
-import '../building_types/repo/mock_building_type_repository.dart';
 import '../shop_widget/building_shop_dialog.dart';
 
 import '../tasks/model/task_model.dart';
