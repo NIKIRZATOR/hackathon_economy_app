@@ -74,8 +74,9 @@ class _CityMapScreenState extends State<CityMapScreen>
   // камера
   final TransformationController _tc = TransformationController();
 
-  // текстуры (пример: дорога)
+  // текстуры
   ui.Image? _roadTex;
+  ui.Image? _grassTex; // ← ДОБАВЛЕНО
 
   // кэш ui.Image по asset path
   final Map<String, ui.Image> _imgCache = {};
@@ -134,9 +135,14 @@ class _CityMapScreenState extends State<CityMapScreen>
     buildings.clear();
     _tc.addListener(() => setState(() {}));
 
-    // пример текстуры дороги
+    // текстура дороги
     _loadUiImage('assets/images/road_gor.png').then((img) {
       if (mounted) setState(() => _roadTex = img);
+    });
+
+    // ← НОВОЕ: текстура фона (трава)
+    _loadUiImage('assets/images/grass_32.png').then((img) {
+      if (mounted) setState(() => _grassTex = img);
     });
 
     // 1-грузим каталог типов 2-поднимаем сохранённые здания
@@ -150,15 +156,12 @@ class _CityMapScreenState extends State<CityMapScreen>
     UserModel? effective;
 
     if (incoming == null) {
-      // нет авторизованного — используем кеш, если есть
       effective = cached;
     } else {
       if (!_sameUserCore(cached, incoming)) {
-        // Отличается — перезапишем кеш актуальными данными
         await _authRepo.saveUser(incoming);
         effective = await _authRepo.getSavedUser();
       } else {
-        // Совпадает — оставляем кеш
         effective = cached ?? incoming;
       }
     }
@@ -208,7 +211,6 @@ class _CityMapScreenState extends State<CityMapScreen>
     final double targetH = isMobile ? media.size.height : kPhoneHeight;
 
     // значения для топ-бара из local_storage
-    // если его ещё нет — подставим безопасные дефолты
     final userId = _user?.userId ?? 0;
     final userLvl = _user?.userLvl ?? 1;
     final xpCount = _user?.userXp ?? 0;
@@ -240,6 +242,7 @@ class _CityMapScreenState extends State<CityMapScreen>
           body: Column(
             children: [
               CityTopBar(
+                user: _user,
                 userId: userId,
                 userLvl: userLvl,
                 xpCount: xpCount,
@@ -250,7 +253,7 @@ class _CityMapScreenState extends State<CityMapScreen>
               ),
               // карта
               Expanded(child: buildMapCanvas()),
-              // магазин | возвращает BuildingType -> строим здание
+              // магазин
               CityMapBottomBar(
                 height: targetH,
                 wight: targetW,

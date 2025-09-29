@@ -18,7 +18,7 @@ extension _CityMapWidget on _CityMapScreenState {
         final realCell = (baseCell * cellSizeMultiplier).clamp(6.0, 64.0);
         _lastCellSize = realCell;
 
-        final mapWidthPx  = _CityMapScreenState.cols * realCell;
+        final mapWidthPx = _CityMapScreenState.cols * realCell;
         final mapHeightPx = _CityMapScreenState.rows * realCell;
 
         // активное здание (для позиции кнопки)
@@ -68,10 +68,17 @@ extension _CityMapWidget on _CityMapScreenState {
                             child: GestureDetector(
                               behavior: HitTestBehavior.opaque,
                               // тапы в scene-координатах
-                              onTapDown: (d) => _onTapInScene(d.localPosition, realCell),
-                              onPanStart: _moveMode ? (d) => _onMovePanStart(d, realCell) : null,
-                              onPanUpdate: _moveMode ? (d) => _onMovePanUpdate(d, realCell) : null,
-                              onPanEnd:   _moveMode ? (d) => _onMovePanEnd(d, realCell)   : null,
+                              onTapDown: (d) =>
+                                  _onTapInScene(d.localPosition, realCell),
+                              onPanStart: _moveMode
+                                  ? (d) => _onMovePanStart(d, realCell)
+                                  : null,
+                              onPanUpdate: _moveMode
+                                  ? (d) => _onMovePanUpdate(d, realCell)
+                                  : null,
+                              onPanEnd: _moveMode
+                                  ? (d) => _onMovePanEnd(d, realCell)
+                                  : null,
                               child: Stack(
                                 children: [
                                   // рендер карты
@@ -84,28 +91,33 @@ extension _CityMapWidget on _CityMapScreenState {
                                       dragPreview: _preview,
                                       version: _paintVersion,
                                       roadTexture: _roadTex,
+                                      grassTexture:
+                                      _grassTex, // ← добавили фон-траву
                                     ),
                                   ),
                                   // кнопка подтверждения переноса
                                   if (_moveMode && active != null)
                                     Positioned(
-                                      // привязка к наружному верхнему правому углу
-                                      // угол в scene-пикселях
-                                      left: (active.x + active.w) * realCell + pxShift.dx,
-                                      top:  (active.y) * realCell + pxShift.dy,
+                                      left: (active.x + active.w) * realCell +
+                                          pxShift.dx,
+                                      top: (active.y) * realCell + pxShift.dy,
                                       child: Transform(
                                         alignment: Alignment.center,
-                                        transform: Matrix4.diagonal3Values(invScale, invScale, 1),
+                                        transform: Matrix4.diagonal3Values(
+                                            invScale, invScale, 1),
                                         child: _ConfirmBtn(
                                           onTap: () async {
                                             final b = active!;
                                             if (_pendingNewBuildingId == b.id &&
-                                                _pendingNewBuildingType != null) {
-                                              await _persistNewBuilding(b, _pendingNewBuildingType!);
+                                                _pendingNewBuildingType !=
+                                                    null) {
+                                              await _persistNewBuilding(
+                                                  b, _pendingNewBuildingType!);
                                               _pendingNewBuildingId = null;
                                               _pendingNewBuildingType = null;
                                             } else {
-                                              await _persistUpdateBuildingPosition(b);
+                                              await _persistUpdateBuildingPosition(
+                                                  b);
                                             }
                                             AudioManager().playSfx('build.mp3');
                                             doSetState(() {
