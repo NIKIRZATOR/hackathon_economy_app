@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../features/user_buildings/model/user_building.dart';
 import 'api_service.dart';
 
@@ -34,9 +36,15 @@ class ApiUserBuilding {
 
   // GET /user-building/by-user/:idUser
   Future<List<UserBuildingModel>> getByUser(int userId) async {
-    final r = await _dio.get('$_base/by-user/$userId');
-    final list = (r.data as List).cast<Map<String, dynamic>>();
-    return list.map((e) => UserBuildingModel.fromJson(_flatten(e))).toList();
+    try {
+      final r = await _dio.get('$_base/by-user/$userId');
+      final list = (r.data as List).cast<Map<String, dynamic>>();
+      return list.map((e) => UserBuildingModel.fromJson(_flatten(e))).toList();
+    } on DioException catch (e) {
+      // нет построек у нового пользователя — это ок, не ошибка
+      if (e.response?.statusCode == 404) return <UserBuildingModel>[];
+      rethrow;
+    }
   }
 
   // POST /user-building
