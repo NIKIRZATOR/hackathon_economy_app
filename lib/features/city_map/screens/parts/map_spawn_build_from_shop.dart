@@ -24,7 +24,37 @@ late int _origX, _origY;
 
 extension _CitySpawnBuildFromShop on _CityMapScreenState {
 
-  void _spawnFromTypeAndEnterMove(BuildingType bt) {
+  // покупаем здание (локально списываются coins, создается запись в UserCityStorage),
+  Future<void> _spawnFromTypeAndEnterMove(BuildingType bt) async {
+    final uid = _user?.userId;
+    if (uid == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Сначала войдите в игру')),
+      );
+      return;
+    }
+
+    // 1 локальная покупка
+    final res = await _purchase.buyBuildingLocal(
+      userId: uid,
+      buildingTypeId: bt.idBuildingType,
+      costCoins: bt.cost.toDouble(),
+    );
+
+    if (!res.ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res.error ?? 'Ошибка покупки')),
+      );
+      return;
+    }
+
+    // 2 обновление монет в профиле
+    doSetState(() {
+      _coins = (res.newCoins ?? _coins).round();
+    });
+
+    // 3 подготовка объекта к режиму переноса
+    final ub = res.building!; // запись из локального стораджа
     final int w = bt.wSize.clamp(1, kMapCols);
     final int h = bt.hSize.clamp(1, kMapRows);
 
@@ -35,18 +65,20 @@ extension _CitySpawnBuildFromShop on _CityMapScreenState {
     final fill = Colors.blue.withValues(alpha: .65);
     final border = Colors.blueGrey;
 
-    final id = DateTime.now().microsecondsSinceEpoch.toString();
+    final id = ub.clientId ?? 'ub_${ub.idUserBuilding}';
     final b = Building(
       id: id,
       name: bt.titleBuildingType,
-      level: 1,
+      level: ub.currentLevel,
       x: startX,
       y: startY,
       w: w,
       h: h,
       fill: fill,
       border: border,
-      imageAsset: bt.imageAsset, // >>> картинка типа
+      imageAsset: bt.imageAsset,
+      idUserBuilding: ub.idUserBuilding,
+      idBuildingType: ub.idBuildingType,
     );
 
     doSetState(() {
@@ -61,7 +93,6 @@ extension _CitySpawnBuildFromShop on _CityMapScreenState {
       _pendingNewBuildingType = bt;
 
       if (_lastCellSize != null) {
-        final cell = _lastCellSize!;
         _dragging = null; // пусть panStart отработает
         _preview = DragPreview(
           Rect.fromLTWH(

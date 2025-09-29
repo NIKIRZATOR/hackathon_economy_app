@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 
 import '../building_types/model/building_type_model.dart';
-import '../building_types/repo/mock_building_type_repository.dart';
+import '../building_types/repo/building_type_repository.dart';
 import '../shop_widget/building_shop_dialog.dart';
 
-// ▼ добавлено для окна "Задания"
 import '../tasks/model/task_model.dart';
 import '../tasks/repo/mock_tasks_repository.dart';
 import '../tasks/widgets/tasks_dialog.dart';
 
-/// Открыть диалог "Задания"
+// открыть диалог "Задания"
 Future<void> openTasks(BuildContext context) async {
-  // Показ простого лоадера, пока "грузим" список заданий
+  // показ лоадера, пока загружается список заданий
   showDialog(
     context: context,
     barrierDismissible: false,
@@ -24,7 +23,7 @@ Future<void> openTasks(BuildContext context) async {
     final repo = MockTasksRepository();
     final List<GameTask> tasks = await repo.loadAll();
 
-    // Закрываем лоадер
+    // закрываем лоадер
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();
 
@@ -46,7 +45,7 @@ Future<void> openTasks(BuildContext context) async {
   }
 }
 
-/// Открыть диалог "Магазин"
+// Открыть диалог "Магазин"
 Future<BuildingType?> openShop(
     BuildContext context,
     double screenHeight,
@@ -60,8 +59,8 @@ Future<BuildingType?> openShop(
   );
 
   try {
-    final repo = MockBuildingTypeRepository();
-    final types = await repo.loadAll();
+    final repo = BuildingTypeRepository();
+    final types = await repo.getAll();
 
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();
@@ -86,7 +85,7 @@ Future<BuildingType?> openShop(
   }
 }
 
-/// Открыть "Альманах" (пока заглушка)
+// Открыть "Альманах" (пока заглушка)
 void openAlmanac(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
     const SnackBar(content: Text('Открыть Альманах')),

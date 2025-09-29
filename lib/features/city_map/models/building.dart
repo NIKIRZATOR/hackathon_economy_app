@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 class Building {
-  String id;
+  String id; // внутренний id для рендера/поиска на карте
   String name;
   int level;
   int x, y; // позиция в ячейках
@@ -16,6 +16,10 @@ class Building {
   // декодированная картинка для Canvas
   ui.Image? image;
 
+  int? idUserBuilding; // id из UserCityStorage
+  int? idBuildingType; // тип из BuildingType.idBuildingType
+  String? clientId; // UserBuildingModel.clientId
+
   Building({
     required this.id,
     required this.name,
@@ -28,6 +32,9 @@ class Building {
     required this.border,
     this.imageAsset,
     this.image,
+    this.idUserBuilding,
+    this.idBuildingType,
+    this.clientId,
   });
 
   // поворот: меняем w/h местами
