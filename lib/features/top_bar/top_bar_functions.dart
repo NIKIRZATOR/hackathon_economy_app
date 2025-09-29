@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
+import 'package:hackathon_economy_app/features/profile/profile_dialog.dart';
 
-/// Открыть экран/диалог уровня (пока заглушка)
-void openLevelInfo(BuildContext context, {required int userId, required int level}) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text('Открыть уровень: userId=$userId, lvl=$level')),
+/// Открыть «Профиль»
+Future<void> openLevelInfo(
+    BuildContext context, {
+      required int userId,
+      required int level,
+      String? username,
+      String? cityTitle,
+      double? hostWidth,     // ← добавлено
+      double? hostHeight,    // ← добавлено
+    }) async {
+  final name = (username == null || username.trim().isEmpty) ? '—' : username;
+  final city = (cityTitle == null || cityTitle.trim().isEmpty) ? '—' : cityTitle;
+
+  await showDialogWithSound(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) => ProfileDialog(
+      username: name,
+      cityTitle: city,
+      level: level,
+      maxWidthHint: hostWidth,    // ← ограничим ширину рамкой телефона
+      maxHeightHint: hostHeight,  // ← и высоту
+      onOpenMapInfo: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Открыть раздел: «Всё о карте»')),
+        );
+      },
+    ),
   );
 }
 
-/// Открыть настройки
+/// Открыть настройки (без изменений)
 Future<void> openSettings(BuildContext context, {required int userId}) async {
   final audio = AudioManager();
   double musicVol = audio.musicVolume;

@@ -5,13 +5,14 @@ import 'top_bar_functions.dart';
 class CityTopBar extends StatelessWidget {
   const CityTopBar({
     super.key,
-    this.user, // необязательный
+    this.user,
     required this.userId,
     required this.userLvl,
     required this.xpCount,
     required this.coinsCount,
     required this.screenHeight,
-    required this.screenWidth, required this.cityTitle,
+    required this.screenWidth,
+    required this.cityTitle,
   });
 
   final UserModel? user; // nullable
@@ -27,14 +28,6 @@ class CityTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final barHeight = screenHeight * 0.08;
-
-    // if (user == null) {
-    //   return SizedBox(
-    //     height: barHeight,
-    //     child: const Center(child: CircularProgressIndicator()),
-    //   );
-    // }
-
     final isNarrow = screenWidth < 420;
 
     return Material(
@@ -45,14 +38,25 @@ class CityTopBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFD9D9D9),
           border: Border(
-            bottom: BorderSide(color: Colors.black.withValues(alpha: .25), width: 1),
+            bottom: BorderSide(
+              color: Colors.black.withValues(alpha: .25),
+              width: 1,
+            ),
           ),
         ),
         child: Row(
           children: [
             _LevelButton(
               level: userLvl,
-              onTap: () => openLevelInfo(context, userId: userId, level: userLvl),
+              onTap: () => openLevelInfo(
+                context,
+                userId: userId,
+                level: userLvl,
+                username: user?.username,
+                cityTitle: cityTitle,
+                hostWidth: screenWidth,    // ← передаём рамку
+                hostHeight: screenHeight,  // ← и высоту
+              ),
             ),
             SizedBox(width: screenHeight * 0.12),
             Expanded(
@@ -63,13 +67,25 @@ class CityTopBar extends StatelessWidget {
                   runSpacing: 6,
                   direction: Axis.vertical,
                   children: [
-                    _SmallInfoPill(label: 'опыт', value: '$xpCount', width: isNarrow ? 92 : 120, height: 20),
-                    _SmallInfoPill(label: 'монеты', value: '$coinsCount', width: isNarrow ? 92 : 120, height: 20),
+                    _SmallInfoPill(
+                      label: 'опыт',
+                      value: '$xpCount',
+                      width: isNarrow ? 92 : 120,
+                      height: 20,
+                    ),
+                    _SmallInfoPill(
+                      label: 'монеты',
+                      value: '$coinsCount',
+                      width: isNarrow ? 92 : 120,
+                      height: 20,
+                    ),
                   ],
                 ),
               ),
             ),
-            _SettingsButton(onTap: () => openSettings(context, userId: userId)),
+            _SettingsButton(
+              onTap: () => openSettings(context, userId: userId),
+            ),
           ],
         ),
       ),
@@ -85,7 +101,7 @@ class _LevelButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final diameter = 40.0;
+    const diameter = 40.0;
 
     return InkWell(
       onTap: onTap,
@@ -100,13 +116,16 @@ class _LevelButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         child: FittedBox(
-          child: Text(
-            "$levelур" ,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.black.withValues(alpha: .9),
-              fontWeight: FontWeight.w600,
-              height: 1.0,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              "$levelур",
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.black.withValues(alpha: .9),
+                fontWeight: FontWeight.w600,
+                height: 1.0,
+              ),
             ),
           ),
         ),
