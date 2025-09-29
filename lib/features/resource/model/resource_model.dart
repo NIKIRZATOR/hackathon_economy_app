@@ -1,35 +1,39 @@
 class ResourceItem {
-  final int? idItem;
-  final String code;
+  final int idResource;
   final String title;
-  final int resourceCost;
+  final double resourceCost;
+  final String code;
   final bool isCurrency;
   final bool isStorable;
+  final String? imagePath;
 
-  ResourceItem({
-    this.idItem,
-    required this.code,
+  const ResourceItem({
+    required this.idResource,
     required this.title,
     required this.resourceCost,
+    required this.code,
     required this.isCurrency,
     required this.isStorable,
+    this.imagePath,
   });
 
-  factory ResourceItem.fromJson(Map<String, dynamic> json) => ResourceItem(
-    idItem: json['id_item'],
-    code: json['code'] ?? '',
-    title: json['title'] ?? '',
-    resourceCost: json['resourceCost'] ?? '',
-    isCurrency: json['is_currency'] ?? false,
-    isStorable: json['is_storable'] ?? true,
+  factory ResourceItem.fromApiJson(Map<String, dynamic> j) => ResourceItem(
+    idResource: j['idResource'] as int,
+    title: j['title'] as String,
+    resourceCost: (j['resourceCost'] as num).toDouble(),
+    code: j['code'] as String,
+    isCurrency: j['isCurrency'] as bool,
+    isStorable: j['isStorable'] as bool,
+    imagePath: j['imagePath'] as String?,
   );
 
   Map<String, dynamic> toJson() => {
-    if (idItem != null) 'id_item': idItem,
-    'code': code,
+    'idResource': idResource,
     'title': title,
     'resourceCost': resourceCost,
-    'is_currency': isCurrency,
-    'is_storable': isStorable,
+    'code': code,
+    'isCurrency': isCurrency,
+    'isStorable': isStorable,
+    'imagePath': imagePath,
   };
 }

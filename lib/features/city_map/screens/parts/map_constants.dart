@@ -10,6 +10,6 @@ const double kPhoneHeight = 660;
 // масштаб клетки
 double cellSizeMultiplier = 1.0;
 
-final int _coins = 100; //заглушка
+int _coins = 0; //заглушка
 
 const double kMapRotationRad = 3.141592653589793 / 4;

@@ -19,6 +19,8 @@ import '../../building_types/repo/building_type_repository.dart';
 
 import '../../../app/models/user_model.dart';
 import '../../user_buildings/repository/user_building_repository.dart';
+import '../../user_resource/model/user_resource_model.dart';
+import '../../user_resource/repo/user_resource_repository.dart';
 import '../models/building.dart';
 import '../models/drag_preview.dart';
 import '../../user_buildings/model/user_building.dart';
@@ -88,6 +90,29 @@ class _CityMapScreenState extends State<CityMapScreen>
   // каталог типов по id (после загрузки из репо)
   final Map<int, BuildingType> _typesById = {};
 
+  // каталог ресурсов по id
+  final _resRepo = UserResourceRepository();
+  List<UserResource> _inventory = [];
+
+  Future<void> _loadInventory(int userId) async {
+    // 1) пробуем из сервера (и положим в кэш)
+    try {
+      _inventory = await _resRepo.syncFromServerAndCache(userId);
+    } catch (_) {
+      // 2) если оффлайн — из кэша
+      _inventory = await _resRepo.loadFromCache(userId);
+    }
+
+    // монеты по коду 'coins'
+    final coins = _inventory.firstWhere(
+          (e) => e.resource.code == 'coins',
+      orElse: () => UserResource(idUserResource: -1, userId: userId, amount: 0, resource: _inventory.isEmpty ? _inventory.first.resource : _inventory.first.resource),
+    ).amount;
+
+    if (mounted) setState(() => _coins = coins.toInt());
+  }
+
+
   /// инициализация экрана
   void mapInit() {
     terrain = buildStaticCityGrid(); // статичный 32×32 (0/1/2/3)
@@ -123,6 +148,12 @@ class _CityMapScreenState extends State<CityMapScreen>
       }
     }
     setState(() => _user = effective);
+
+    // загрузка инвентаря пользователя после авторизации
+    final uid = _user?.userId;
+    if (uid != null) {
+      await _loadInventory(uid);
+    }
   }
 
   @override
