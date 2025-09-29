@@ -42,4 +42,52 @@ class UserInventoryStorage {
         throw StateError('Inventory empty') : items.first.resource));
     return it.amount;
   }
+
+  // без исключений: если нет кода — вернём 0.
+  Future<double> getAmountByCodeSafe(int userId, String code) async {
+    final items = await load(userId);
+    final it = items.where((e) => e.resource.code == code).toList();
+    if (it.isEmpty) return 0;
+    return it.first.amount;
+  }
+
+  // Установить количество ресурса по code из localstorage
+  Future<void> setAmountByCode({
+    required int userId,
+    required String code,
+    required double amount,
+  }) async {
+    final items = await load(userId);
+    final idx = items.indexWhere((e) => e.resource.code == code);
+    if (idx < 0) {
+      // локально не создаём новую запись
+      return;
+    }
+    items[idx] = items[idx].copyWith(amount: amount);
+    await saveAll(userId, items);
+  }
+
+  // попытка списания стоимость по коду ресурса
+  Future<bool> trySpendByCode({
+    required int userId,
+    required String code,
+    required double cost,
+  }) async {
+    if (cost <= 0) return true;
+    final curr = await getAmountByCodeSafe(userId, code);
+    if (curr + 1e-9 < cost) return false;
+    await setAmountByCode(userId: userId, code: code, amount: curr - cost);
+    return true;
+  }
+
+  // начисление по коду ресурса
+  Future<void> addByCode({
+    required int userId,
+    required String code,
+    required double delta,
+  }) async {
+    if (delta == 0) return;
+    final curr = await getAmountByCodeSafe(userId, code);
+    await setAmountByCode(userId: userId, code: code, amount: curr + delta);
+  }
 }

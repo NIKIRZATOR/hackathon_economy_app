@@ -45,4 +45,30 @@ class UserCityStorage {
       await saveAll(userId, items);
     }
   }
+
+  // локально создаем запись здания с state = 'preview' (для режима размещения).
+  Future<UserBuildingModel> addLocalBuilding({
+    required int userId,
+    required int buildingTypeId,
+    int x = -1,
+    int y = -1,
+    int currentLevel = 1,
+    String state = 'preview',
+  }) async {
+    final id = await nextLocalId(userId);
+    final ub = UserBuildingModel(
+      idUserBuilding: id,
+      clientId: 'local_$id',
+      idUser: userId,
+      idBuildingType: buildingTypeId,
+      x: x,
+      y: y,
+      currentLevel: currentLevel,
+      state: state,
+      placedAt: DateTime.now().toUtc(),
+      lastUpgradeAt: null,
+    );
+    await upsert(userId, ub);
+    return ub;
+  }
 }

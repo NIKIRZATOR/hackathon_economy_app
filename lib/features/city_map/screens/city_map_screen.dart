@@ -18,6 +18,7 @@ import '../../building_types/model/building_type_model.dart';
 import '../../building_types/repo/building_type_repository.dart';
 
 import '../../../app/models/user_model.dart';
+import '../../shop_widget/services/purchase_service.dart';
 import '../../user_buildings/repository/user_building_repository.dart';
 import '../../user_resource/model/user_resource_model.dart';
 import '../../user_resource/repo/user_resource_repository.dart';
@@ -29,6 +30,7 @@ import '../painters/map_painter.dart';
 import '../services/placement_rules.dart';
 import '../services/static_city_layout.dart';
 import '../services/user_city_storage.dart';
+import '../services/user_inventory_storage.dart';
 
 part 'parts/map_constants.dart';
 part 'parts/map_user_init.dart';
@@ -54,6 +56,11 @@ class CityMapScreen extends StatefulWidget {
 class _CityMapScreenState extends State<CityMapScreen>
     with WidgetsBindingObserver {
   void doSetState(VoidCallback fn) => setState(fn);
+
+  final _purchase = PurchaseService(
+    inventory: UserInventoryStorage(),
+    city: UserCityStorage(),
+  );
 
   // размеры карты (логические ячейки)
   static const int rows = 32;
@@ -104,14 +111,22 @@ class _CityMapScreenState extends State<CityMapScreen>
     }
 
     // монеты по коду 'coins'
-    final coins = _inventory.firstWhere(
+    final coins = _inventory
+        .firstWhere(
           (e) => e.resource.code == 'coins',
-      orElse: () => UserResource(idUserResource: -1, userId: userId, amount: 0, resource: _inventory.isEmpty ? _inventory.first.resource : _inventory.first.resource),
-    ).amount;
+          orElse: () => UserResource(
+            idUserResource: -1,
+            userId: userId,
+            amount: 0,
+            resource: _inventory.isEmpty
+                ? _inventory.first.resource
+                : _inventory.first.resource,
+          ),
+        )
+        .amount;
 
     if (mounted) setState(() => _coins = coins.toInt());
   }
-
 
   /// инициализация экрана
   void mapInit() {
