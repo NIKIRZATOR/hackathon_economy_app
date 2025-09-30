@@ -3,6 +3,7 @@ import 'package:hackathon_economy_app/app/models/user_model.dart';
 import 'package:hackathon_economy_app/core/ui/MainIconButton.dart';
 import 'package:hackathon_economy_app/core/ui/StarButton.dart';
 import 'package:hackathon_economy_app/core/ui/OvalWithIcon.dart';
+import '../../core/ui/OvalFOrCoins.dart';
 import 'top_bar_functions.dart';
 
 class CityTopBar extends StatelessWidget {
@@ -16,6 +17,7 @@ class CityTopBar extends StatelessWidget {
     required this.screenHeight,
     required this.screenWidth,
     required this.cityTitle,
+    this.coinsDeltaStream,
   });
 
   final UserModel? user;
@@ -28,6 +30,8 @@ class CityTopBar extends StatelessWidget {
   final double screenHeight;
   final double screenWidth;
 
+  final Stream<double>? coinsDeltaStream;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -36,7 +40,7 @@ class CityTopBar extends StatelessWidget {
       padding: const EdgeInsets.only(top: 22, left: 60, right: 60),
       child: SizedBox(
         height: screenHeight * 0.09 + 10,
-          child: Row(
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -57,22 +61,23 @@ class CityTopBar extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 20),
-                Padding (
+                Padding(
                   padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: 
-                  Column(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       OvalWithIcon(
                         current: xpCount,
-                        total: 1250, //ИЗМЕНИТЬ НА РЕАЛЬНЫЙ ОПЫТ, ТРЕБУЕМЫЙ ДЛЯ АПА ЛВЛА 
+                        total: 1250,
+                        //ИЗМЕНИТЬ НА РЕАЛЬНЫЙ ОПЫТ, ТРЕБУЕМЫЙ ДЛЯ АПА ЛВЛА
                         iconPath: 'assets/images/resources/star.png',
                       ),
-                      OvalWithIcon(
-                        current: coinsCount,
+                      CoinsOval(
+                        amount: coinsCount, // или _coins
                         iconPath: 'assets/images/resources/coin.png',
-                      ),
+                        deltaStream: coinsDeltaStream, // если есть стрим из тикера
+                      )
                     ],
                   ),
                 ),

@@ -32,12 +32,14 @@ import '../models/drag_preview.dart';
 import '../../user_buildings/model/user_building.dart';
 
 import '../painters/map_painter.dart';
+import '../services/building_type_output_storage.dart';
 import '../services/placement_rules.dart';
 import '../services/static_city_layout.dart';
 import '../services/user_city_storage.dart';
 import '../services/user_inventory_storage.dart';
 
 part 'parts/map_constants.dart';
+part 'parts/map_passive_income_coins.dart';
 part 'parts/load_build_in_out_put.dart';
 part 'parts/map_user_init.dart';
 part 'parts/map_types_catalog.dart'; // каталог типов
@@ -180,6 +182,7 @@ class _CityMapScreenState extends State<CityMapScreen>
     final uid = _user?.userId;
     if (uid != null) {
       await _loadInventory(uid);
+      await _rearmPassiveIncomeTicker(); // СТАРТ ТИКЕРА ПАССИВНЫХ МОНЕТ
     }
   }
 
@@ -195,7 +198,9 @@ class _CityMapScreenState extends State<CityMapScreen>
 
   @override
   void dispose() {
+    _coinsDeltaStream.close();
     WidgetsBinding.instance.removeObserver(this);
+    _stopPassiveIncomeTicker(); // СТОП ТИКЕР ПАССИВНЫХ МОНЕТ
     mapDispose(); // в part: слушатели, чистка
     AudioManager().stopMusic();
     super.dispose();
@@ -243,6 +248,7 @@ class _CityMapScreenState extends State<CityMapScreen>
                   userLvl: userLvl,
                   xpCount: xpCount,
                   coinsCount: _coins,
+                  coinsDeltaStream: _coinsDeltaStream.stream,
                   cityTitle: cityName,
                   screenHeight: targetH,
                   screenWidth: targetW,
