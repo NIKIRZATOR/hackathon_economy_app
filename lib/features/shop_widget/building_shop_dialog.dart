@@ -7,12 +7,13 @@ class BuildingShopDialog extends StatelessWidget {
     super.key,
     required this.buildingTypes,
     required this.screenHeight,
-    required this.screenWight,
+    required this.screenWight, required this.playerLevel,
   });
 
   final List<BuildingType> buildingTypes;
   final double screenHeight;
   final double screenWight;
+  final int playerLevel;
 
   @override
   Widget build(BuildContext context) {
@@ -69,11 +70,13 @@ class BuildingShopDialog extends StatelessWidget {
                     final lvl = levels[i];
                     final items = levelsMap[lvl]!
                       ..sort((a, b) => a.cost.compareTo(b.cost));
+                    final locked = playerLevel < lvl;
                     return BuildingLevelSection(
                       level: lvl,
                       items: items,
                       screenHeight: screenHeight,
                       screenWight: screenWight,
+                      locked: locked,
                     );
                   },
                 ),
