@@ -14,7 +14,11 @@ import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 import '../../../app/repository/auth_repository.dart';
+import '../../building_types/model/building_type_input.dart';
 import '../../building_types/model/building_type_model.dart';
+import '../../building_types/model/building_type_output.dart';
+import '../../building_types/repo/building_type_input_repository.dart';
+import '../../building_types/repo/building_type_output_repository.dart';
 import '../../building_types/repo/building_type_repository.dart';
 
 import '../../../app/models/user_model.dart';
@@ -33,6 +37,7 @@ import '../services/user_city_storage.dart';
 import '../services/user_inventory_storage.dart';
 
 part 'parts/map_constants.dart';
+part 'parts/load_build_in_out_put.dart';
 part 'parts/map_user_init.dart';
 part 'parts/map_types_catalog.dart'; // каталог типов
 part 'parts/map_persist.dart'; // загрузка/сохранение/обновление
@@ -140,13 +145,16 @@ class _CityMapScreenState extends State<CityMapScreen>
       if (mounted) setState(() => _roadTex = img);
     });
 
-    // ← НОВОЕ: текстура фона (трава)
+    // текстура фона (трава)
     _loadUiImage('assets/images/grass_32.png').then((img) {
       if (mounted) setState(() => _grassTex = img);
     });
 
     // 1-грузим каталог типов 2-поднимаем сохранённые здания
     _loadTypesThenUserCity();
+
+    // поднимем inputs/outputs из локального кэша
+    _loadIOFromCache();
   }
 
   Future<void> _initUser() async {
