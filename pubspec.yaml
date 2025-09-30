@@ -18,7 +18,9 @@ dependencies:
   provider: ^6.0.0
   equatable: ^2.0.5
   intl: ^0.20.2
+  flutter_svg: ^2.0.9
   connectivity_plus: ^7.0.0
+
 
 dev_dependencies:
   flutter_test:
@@ -32,8 +34,31 @@ flutter:
   assets:
     - assets/images/road_gor.png
     - assets/images/grass_32.png
+    - assets/images/star.svg
+    - assets/images/resources/
     - assets/mock_data/mock_building_type.json
     - assets/audio/music/
     - assets/audio/sfx/
     - assets/images/buildings/
     - assets/mock_data/
+
+  fonts:
+    - family: Halvar
+      fonts:
+        - asset: assets/fonts/Halvar/Regular/HalvarBreitschrift-Regular-Web.ttf
+          weight: 400
+        - asset: assets/fonts/Halvar/Regular/HalvarBreitschrift-RegularSuperSlanted-Web.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/Halvar/Medium/HalvarBreitschrift-Medium-Web.ttf
+          weight: 500
+        - asset: assets/fonts/Halvar/Medium/HalvarBreitschrift-MediumSuperSlanted-Web.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Halvar/Bold/HalvarBreitschrift-Bold-Web.ttf
+          weight: 700
+        - asset: assets/fonts/Halvar/Bold/HalvarBreitschrift-BoldSuperSlanted-Web.ttf
+          weight: 700
+          style: italic
+        - asset: assets/fonts/Halvar/ExtraBold/HalvarBreitschrift-ExtraBold-Web.ttf
+          weight: 800

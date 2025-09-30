@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/theme/app_theme.dart';
 import 'core/layout/app_view_size.dart';
 import 'features/auth/screens/auth_screen.dart';
 
@@ -14,8 +15,7 @@ class CapitalCityApp extends StatelessWidget {
     return MaterialApp(
       title: 'Город Капитала — MVP Map',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: Colors.indigo),
-
+      theme: AppTheme.light,
       builder: (context, child) {
         final content = child ?? const AuthScreen();
         return AppViewSize.decide(
@@ -26,7 +26,6 @@ class CapitalCityApp extends StatelessWidget {
           child: content,
         );
       },
-
       home: const AuthScreen(),
     );
   }

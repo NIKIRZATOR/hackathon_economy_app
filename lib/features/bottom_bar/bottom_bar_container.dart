@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hackathon_economy_app/core/ui/MainIconButton.dart';
 
 import '../building_types/model/building_type_model.dart';
 import 'bottom_bar_functions.dart';
@@ -19,29 +20,33 @@ class CityMapBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height * 0.07,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          TextButton(
-            onPressed: () => openTasks(context),
-            child: const Text('Задания'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final selected = await openShop(context, height, wight, userLevel);
-              if (selected != null) {
-                onBuyBuildingType(selected);
-              }
-            },
-            child: const Text('Магазин'),
-          ),
-          TextButton(
-            onPressed: () => openAlmanac(context),
-            child: const Text('Альманах'),
-          ),
-        ],
+    final theme = Theme.of(context);
+    return Padding(
+    padding: const EdgeInsets.only(bottom: 35, left: 60, right: 60),
+      child: SizedBox(
+        height: height * 0.09,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            MainIconButton(
+              icon: Icons.assignment,
+              onPressed: () => openTasks(context, height, wight),
+            ),
+            MainIconButton(
+              icon: Icons.shopping_cart,
+              onPressed: () async {
+                final selected = await openShop(context, height, wight, userLevel);
+                if (selected != null) {
+                  onBuyBuildingType(selected);
+                }
+              },
+            ),
+            MainIconButton(
+              icon: Icons.menu_book,
+              onPressed: () => openAlmanac(context),
+            ),
+          ],
+        ),
       ),
     );
   }
