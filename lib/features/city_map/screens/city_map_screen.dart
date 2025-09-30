@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
 import 'package:vector_math/vector_math_64.dart' as v_math;
 
 import 'package:hackathon_economy_app/features/top_bar/city_top_bar.dart';
@@ -14,7 +15,11 @@ import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 import '../../../app/repository/auth_repository.dart';
+import '../../building_types/model/building_type_input.dart';
 import '../../building_types/model/building_type_model.dart';
+import '../../building_types/model/building_type_output.dart';
+import '../../building_types/repo/building_type_input_repository.dart';
+import '../../building_types/repo/building_type_output_repository.dart';
 import '../../building_types/repo/building_type_repository.dart';
 
 import '../../../app/models/user_model.dart';
@@ -33,6 +38,7 @@ import '../services/user_city_storage.dart';
 import '../services/user_inventory_storage.dart';
 
 part 'parts/map_constants.dart';
+part 'parts/load_build_in_out_put.dart';
 part 'parts/map_user_init.dart';
 part 'parts/map_types_catalog.dart'; // каталог типов
 part 'parts/map_persist.dart'; // загрузка/сохранение/обновление
@@ -76,7 +82,7 @@ class _CityMapScreenState extends State<CityMapScreen>
 
   // текстуры
   ui.Image? _roadTex;
-  ui.Image? _grassTex; // ← ДОБАВЛЕНО
+  ui.Image? _grassTex;
 
   // кэш ui.Image по asset path
   final Map<String, ui.Image> _imgCache = {};
@@ -140,13 +146,16 @@ class _CityMapScreenState extends State<CityMapScreen>
       if (mounted) setState(() => _roadTex = img);
     });
 
-    // ← НОВОЕ: текстура фона (трава)
+    // текстура фона (трава)
     _loadUiImage('assets/images/grass_32.png').then((img) {
       if (mounted) setState(() => _grassTex = img);
     });
 
     // 1-грузим каталог типов 2-поднимаем сохранённые здания
     _loadTypesThenUserCity();
+
+    // поднимем inputs/outputs из локального кэша
+    _loadIOFromCache();
   }
 
   Future<void> _initUser() async {
@@ -203,12 +212,10 @@ class _CityMapScreenState extends State<CityMapScreen>
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
 
-    // true = реальный телефон, false = web-рамка
-    bool isMobile = false;
-    final double targetW = isMobile ? media.size.width : kPhoneWidth;
-    final double targetH = isMobile ? media.size.height : kPhoneHeight;
+    final vp = AppViewSize.of(context);
+    final double targetW = vp.targetW;
+    final double targetH = vp.targetH;
 
     // значения для топ-бара из local_storage
     final userId = _user?.userId ?? 0;
@@ -249,6 +256,7 @@ class _CityMapScreenState extends State<CityMapScreen>
                   height: targetH,
                   wight: targetW,
                   onBuyBuildingType: _spawnFromTypeAndEnterMove,
+                  userLevel: userLvl,
                 ),
               ),
             ],

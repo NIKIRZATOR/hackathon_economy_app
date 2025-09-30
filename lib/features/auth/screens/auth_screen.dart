@@ -3,6 +3,10 @@ import 'package:hackathon_economy_app/app/models/user_model.dart';
 import 'package:hackathon_economy_app/app/repository/auth_repository.dart';
 import 'package:hackathon_economy_app/features/city_map/screens/city_map_screen.dart';
 
+import '../../../app/sync/sync_service.dart';
+import '../../building_types/repo/building_type_input_repository.dart';
+import '../../building_types/repo/building_type_output_repository.dart';
+
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -20,6 +24,17 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passCtrl = TextEditingController(text: 'test');
   final _cityCtrl = TextEditingController(text: 'MyCity');
 
+  final _inRepo = BuildingTypeInputRepository();
+  final _outRepo = BuildingTypeOutputRepository();
+
+  Future<void> warmUp() async {
+    // грузим параллельно; если один упадёт — не срываем авторизацию
+    await Future.wait([
+      _inRepo.syncFromServerAndCache(),
+      _outRepo.syncFromServerAndCache(),
+    ], eagerError: false);
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
@@ -34,6 +49,12 @@ class _AuthScreenState extends State<AuthScreen> {
           _cityCtrl.text.trim(),
         );
       }
+
+      await warmUp();
+
+      //  ПЕРИОДИЧЕСКАЯ СИНХРОНИЗАЦИЮ
+      SyncService.I.start(userId: user.userId!);
+
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => CityMapScreen(incomingUser: user)),

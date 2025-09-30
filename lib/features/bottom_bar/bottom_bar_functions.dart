@@ -56,6 +56,7 @@ Future<BuildingType?> openShop(
     BuildContext context,
     double screenHeight,
     double screenWight,
+    int userLevel,
     ) async {
   // Лоадер
   showDialog(
@@ -79,6 +80,7 @@ Future<BuildingType?> openShop(
         buildingTypes: types,
         screenHeight: screenHeight,
         screenWight: screenWight,
+        playerLevel: userLevel,
       ),
     );
   } catch (e) {
