@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
+import 'package:hackathon_economy_app/core/ui/DialogWithCross.dart';
 
 import '../building_types/model/building_type_model.dart';
 import '../building_types/repo/building_type_repository.dart';
@@ -10,7 +11,7 @@ import '../tasks/repo/mock_tasks_repository.dart';
 import '../tasks/widgets/tasks_dialog.dart';
 
 // открыть диалог "Задания"
-Future<void> openTasks(BuildContext context) async {
+Future<void> openTasks(BuildContext context, double height, double wight) async {
   // показ лоадера, пока загружается список заданий
   showDialog(
     context: context,
@@ -27,11 +28,16 @@ Future<void> openTasks(BuildContext context) async {
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();
 
-    // Показываем диалог с заданиями
-    await showDialogWithSound<void>(
+    showDialogWithSound<void>(
       context: context,
-      barrierDismissible: true,
-      builder: (_) => TasksDialog(tasks: tasks),
+      builder: (context) {
+        return DialogWithCross(
+          screenHeight: height, 
+          screenWidth: wight,
+          title: 'Задания',
+          content: TasksDialog(tasks: tasks),
+        );
+      },
     );
   } catch (e) {
     // На всякий случай закрыть лоадер, если он открыт

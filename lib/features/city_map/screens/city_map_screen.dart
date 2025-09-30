@@ -221,46 +221,38 @@ class _CityMapScreenState extends State<CityMapScreen>
         width: targetW,
         height: targetH,
         child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.red,
-            title: const Text('Город Капитала'),
-            actions: [
-              if (_moveMode)
-                Padding(
-                  padding: const EdgeInsets.only(right: 12),
-                  child: Center(
-                    child: Text(
-                      'Перенос',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-          body: Column(
+          body: Stack(
             children: [
-              CityTopBar(
-                user: _user,
-                userId: userId,
-                userLvl: userLvl,
-                xpCount: xpCount,
-                coinsCount: _coins,
-                cityTitle: cityName,
-                screenHeight: targetH,
-                screenWidth: targetW,
+              Positioned.fill(
+                child: buildMapCanvas(),
               ),
-              // карта
-              Expanded(child: buildMapCanvas()),
-              // магазин
-              CityMapBottomBar(
-                height: targetH,
-                wight: targetW,
-                onBuyBuildingType: _spawnFromTypeAndEnterMove,
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: CityTopBar(
+                  user: _user,
+                  userId: userId,
+                  userLvl: userLvl,
+                  xpCount: xpCount,
+                  coinsCount: _coins,
+                  cityTitle: cityName,
+                  screenHeight: targetH,
+                  screenWidth: targetW,
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: CityMapBottomBar(
+                  height: targetH,
+                  wight: targetW,
+                  onBuyBuildingType: _spawnFromTypeAndEnterMove,
+                ),
               ),
             ],
-          ),
+          )
         ),
       ),
     );
