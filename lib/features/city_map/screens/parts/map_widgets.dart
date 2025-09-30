@@ -91,8 +91,8 @@ extension _CityMapWidget on _CityMapScreenState {
                                       dragPreview: _preview,
                                       version: _paintVersion,
                                       roadTexture: _roadTex,
-                                      grassTexture:
-                                      _grassTex, // ← добавили фон-траву
+                                      grassTexture: _grassTex,
+                                      showGrid: _moveMode,
                                     ),
                                   ),
                                   // кнопка подтверждения переноса
