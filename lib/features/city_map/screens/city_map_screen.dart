@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
 import 'package:vector_math/vector_math_64.dart' as v_math;
 
 import 'package:hackathon_economy_app/features/top_bar/city_top_bar.dart';
@@ -81,7 +82,7 @@ class _CityMapScreenState extends State<CityMapScreen>
 
   // текстуры
   ui.Image? _roadTex;
-  ui.Image? _grassTex; // ← ДОБАВЛЕНО
+  ui.Image? _grassTex;
 
   // кэш ui.Image по asset path
   final Map<String, ui.Image> _imgCache = {};
@@ -211,12 +212,10 @@ class _CityMapScreenState extends State<CityMapScreen>
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
 
-    // true = реальный телефон, false = web-рамка
-    bool isMobile = false;
-    final double targetW = isMobile ? media.size.width : kPhoneWidth;
-    final double targetH = isMobile ? media.size.height : kPhoneHeight;
+    final vp = AppViewSize.of(context);
+    final double targetW = vp.targetW;
+    final double targetH = vp.targetH;
 
     // значения для топ-бара из local_storage
     final userId = _user?.userId ?? 0;
