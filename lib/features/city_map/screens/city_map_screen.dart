@@ -13,6 +13,11 @@ import 'package:hackathon_economy_app/features/bottom_bar/bottom_bar_container.d
 import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
+// ▼ туториал
+import 'package:hackathon_economy_app/features/tutorial/widgets/tutorial_overlay.dart';
+import 'package:hackathon_economy_app/features/tutorial/model/tutorial_step.dart';
+import 'package:hackathon_economy_app/features/bottom_bar/bottom_bar_functions.dart';
+
 import '../../../app/repository/auth_repository.dart';
 import '../../building_types/model/building_type_model.dart';
 import '../../building_types/repo/building_type_repository.dart';
@@ -34,15 +39,15 @@ import '../services/user_inventory_storage.dart';
 
 part 'parts/map_constants.dart';
 part 'parts/map_user_init.dart';
-part 'parts/map_types_catalog.dart'; // каталог типов
-part 'parts/map_persist.dart'; // загрузка/сохранение/обновление
-part 'parts/map_spawn_build_from_shop.dart'; // спавн здания из магазина и предпросмотр
-part 'parts/map_state_init.dart'; // init/dispose, _toast, _loadUiImage, listen камеры
-part 'parts/map_helpers.dart'; // координаты, confirm button pos, публичный spawn
-part 'parts/map_dialogs.dart'; // диалог инфо по зданию
-part 'parts/map_move_drag.dart'; // перенос/drag&drop
-part 'parts/map_widgets.dart'; // UI холста карты и overlay
-part 'parts/open_build_from_map_dialog.dart'; // диалог интерфейса здания на карте
+part 'parts/map_types_catalog.dart';
+part 'parts/map_persist.dart';
+part 'parts/map_spawn_build_from_shop.dart';
+part 'parts/map_state_init.dart';
+part 'parts/map_helpers.dart';
+part 'parts/map_dialogs.dart';
+part 'parts/map_move_drag.dart';
+part 'parts/map_widgets.dart';
+part 'parts/open_build_from_map_dialog.dart';
 
 class CityMapScreen extends StatefulWidget {
   const CityMapScreen({super.key, this.incomingUser});
@@ -62,32 +67,26 @@ class _CityMapScreenState extends State<CityMapScreen>
     city: UserCityStorage(),
   );
 
-  // размеры карты (логические ячейки)
   static const int rows = 32;
   static const int cols = 32;
 
-  // состояние карты и зданий
   late List<List<int>> terrain;
   final List<Building> buildings = [];
   final math.Random rng = math.Random(42);
 
-  // камера
   final TransformationController _tc = TransformationController();
 
-  // текстуры
   ui.Image? _roadTex;
-  ui.Image? _grassTex; // ← ДОБАВЛЕНО
+  ui.Image? _grassTex;
 
-  // кэш ui.Image по asset path
   final Map<String, ui.Image> _imgCache = {};
 
-  // загрузить ui.Image из ассета с кэшем
   Future<ui.Image?> _getOrLoadBuildingImage(String? assetPath) async {
     if (assetPath == null) return null;
     final cached = _imgCache[assetPath];
     if (cached != null) return cached;
     try {
-      final img = await _loadUiImage(assetPath); // из map_state_init.dart
+      final img = await _loadUiImage(assetPath);
       _imgCache[assetPath] = img;
       return img;
     } catch (_) {
@@ -95,57 +94,123 @@ class _CityMapScreenState extends State<CityMapScreen>
     }
   }
 
-  // каталог типов по id (после загрузки из репо)
   final Map<int, BuildingType> _typesById = {};
 
-  // каталог ресурсов по id
   final _resRepo = UserResourceRepository();
   List<UserResource> _inventory = [];
 
   Future<void> _loadInventory(int userId) async {
-    // 1) пробуем из сервера (и положим в кэш)
     try {
       _inventory = await _resRepo.syncFromServerAndCache(userId);
     } catch (_) {
-      // 2) если оффлайн — из кэша
       _inventory = await _resRepo.loadFromCache(userId);
     }
 
-    // монеты по коду 'coins'
     final coins = _inventory
         .firstWhere(
           (e) => e.resource.code == 'coins',
-          orElse: () => UserResource(
-            idUserResource: -1,
-            userId: userId,
-            amount: 0,
-            resource: _inventory.isEmpty
-                ? _inventory.first.resource
-                : _inventory.first.resource,
-          ),
-        )
+      orElse: () => UserResource(
+        idUserResource: -1,
+        userId: userId,
+        amount: 0,
+        resource: _inventory.isEmpty
+            ? _inventory.first.resource
+            : _inventory.first.resource,
+      ),
+    )
         .amount;
 
     if (mounted) setState(() => _coins = coins.toInt());
   }
 
+  /// ───── Туториал ─────
+  final GlobalKey _shopBtnKey = GlobalKey();
+  final GlobalKey<TutorialOverlayState> _tutorialKey =
+  GlobalKey<TutorialOverlayState>(); // ← ключ состояния
+  bool _showTutorial = true;
+  OverlayEntry? _tutorialEntry;
+  TutorialOverlay? _tutorialWidget;
+  List<TutorialStep> _steps = const [];
+  Rect? _shopRect;
+
+  void _startTutorial() {
+    _steps = const [
+      TutorialStep(
+        id: 'hello',
+        text: 'Привет! Я Миша. Добро пожаловать в Город Капитала!',
+        mishaAsset: 'assets/images/Misha/Misha_smile.png',
+      ),
+      TutorialStep(
+        id: 'open_shop',
+        text: 'Давай начнём со строительства. Открой, пожалуйста, Магазин!',
+        mishaAsset: 'assets/images/Misha/Misha_points.png',
+        waitsUserTap: true,
+        action: 'open_shop',
+      ),
+      TutorialStep(
+        id: 'place_building',
+        text:
+        'Отлично! Выбери здание и поставь его на карту. Подтверди зелёной галочкой.',
+        mishaAsset: 'assets/images/Misha/Misha_like.png',
+        waitsUserTap: true,
+        action: 'place_building',
+      ),
+      TutorialStep(
+        id: 'done',
+        text: 'Готово! Ты умеешь строить. Дальше разберёмся вместе!',
+        mishaAsset: 'assets/images/Misha/Misha_happy.png',
+      ),
+    ];
+
+    final rb = _shopBtnKey.currentContext?.findRenderObject() as RenderBox?;
+    if (rb != null) {
+      final offset = rb.localToGlobal(Offset.zero);
+      _shopRect =
+          Rect.fromLTWH(offset.dx, offset.dy, rb.size.width, rb.size.height);
+    }
+
+    _showTutorialOverlay();
+  }
+
+  void _showTutorialOverlay() {
+    _removeTutorialOverlay();
+
+    _tutorialWidget = TutorialOverlay(
+      key: _tutorialKey,
+      steps: _steps,
+      highlightRect: _shopRect, // оставляем подсветку
+      onAction: (action) async {
+      },
+      onFinished: () {
+        setState(() => _showTutorial = false);
+        _removeTutorialOverlay();
+      },
+    );
+
+
+    _tutorialEntry = OverlayEntry(builder: (_) => _tutorialWidget!);
+    Overlay.of(context, rootOverlay: true).insert(_tutorialEntry!);
+  }
+
+  void _removeTutorialOverlay() {
+    _tutorialEntry?.remove();
+    _tutorialEntry = null;
+  }
+
   /// инициализация экрана
   void mapInit() {
-    terrain = buildStaticCityGrid(); // статичный 32×32 (0/1/2/3)
+    terrain = buildStaticCityGrid();
     buildings.clear();
     _tc.addListener(() => setState(() {}));
 
-    // текстура дороги
     _loadUiImage('assets/images/road_gor.png').then((img) {
       if (mounted) setState(() => _roadTex = img);
     });
 
-    // ← НОВОЕ: текстура фона (трава)
     _loadUiImage('assets/images/grass_32.png').then((img) {
       if (mounted) setState(() => _grassTex = img);
     });
 
-    // 1-грузим каталог типов 2-поднимаем сохранённые здания
     _loadTypesThenUserCity();
   }
 
@@ -167,7 +232,6 @@ class _CityMapScreenState extends State<CityMapScreen>
     }
     setState(() => _user = effective);
 
-    // загрузка инвентаря пользователя после авторизации
     final uid = _user?.userId;
     if (uid != null) {
       await _loadInventory(uid);
@@ -182,12 +246,17 @@ class _CityMapScreenState extends State<CityMapScreen>
     AudioManager().playMusic('background.mp3');
     mapInit();
     _initUser();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_showTutorial) _startTutorial();
+    });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    mapDispose(); // в part: слушатели, чистка
+    mapDispose();
+    _removeTutorialOverlay();
     AudioManager().stopMusic();
     super.dispose();
   }
@@ -205,12 +274,10 @@ class _CityMapScreenState extends State<CityMapScreen>
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
 
-    // true = реальный телефон, false = web-рамка
     bool isMobile = false;
     final double targetW = isMobile ? media.size.width : kPhoneWidth;
     final double targetH = isMobile ? media.size.height : kPhoneHeight;
 
-    // значения для топ-бара из local_storage
     final userId = _user?.userId ?? 0;
     final userLvl = _user?.userLvl ?? 1;
     final xpCount = _user?.userXp ?? 0;
@@ -251,13 +318,20 @@ class _CityMapScreenState extends State<CityMapScreen>
                 screenHeight: targetH,
                 screenWidth: targetW,
               ),
-              // карта
               Expanded(child: buildMapCanvas()),
-              // магазин
               CityMapBottomBar(
                 height: targetH,
                 wight: targetW,
-                onBuyBuildingType: _spawnFromTypeAndEnterMove,
+                onBuyBuildingType: (type) {
+                  _spawnFromTypeAndEnterMove(type);
+                  // если диалог ещё не закрыт — на всякий случай продвинем (после выбора здания)
+                  _tutorialKey.currentState?.completeCurrentAction();
+                },
+                shopButtonKey: _shopBtnKey,
+                onShopPressed: () {
+                  // как только игрок нажал на кнопку — закрываем диалог шага "open_shop"
+                  _tutorialKey.currentState?.completeCurrentAction();
+                },
               ),
             ],
           ),

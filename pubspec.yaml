@@ -32,6 +32,7 @@ flutter:
     - assets/images/road_gor.png
     - assets/images/grass_32.png
     - assets/mock_data/mock_building_type.json
+    - assets/images/Misha/
     - assets/audio/music/
     - assets/audio/sfx/
     - assets/images/buildings/

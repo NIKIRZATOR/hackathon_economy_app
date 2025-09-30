@@ -9,11 +9,16 @@ class CityMapBottomBar extends StatelessWidget {
     required this.height,
     required this.wight,
     required this.onBuyBuildingType,
+    this.shopButtonKey,
+    this.onShopPressed, // ← НОВОЕ
   });
 
   final double height;
   final double wight;
   final void Function(BuildingType) onBuyBuildingType;
+  final GlobalKey? shopButtonKey;
+  final VoidCallback? onShopPressed; // ← НОВОЕ
+
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,11 @@ class CityMapBottomBar extends StatelessWidget {
             child: const Text('Задания'),
           ),
           TextButton(
+            key: shopButtonKey,
             onPressed: () async {
+              // Сигналим туториалу: пользователь САМ нажал «Магазин»
+              onShopPressed?.call();
+
               final selected = await openShop(context, height, wight);
               if (selected != null) {
                 onBuyBuildingType(selected);
@@ -35,6 +44,7 @@ class CityMapBottomBar extends StatelessWidget {
             },
             child: const Text('Магазин'),
           ),
+
           TextButton(
             onPressed: () => openAlmanac(context),
             child: const Text('Альманах'),
