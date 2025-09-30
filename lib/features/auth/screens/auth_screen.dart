@@ -4,6 +4,7 @@ import 'package:hackathon_economy_app/app/repository/auth_repository.dart';
 import 'package:hackathon_economy_app/features/city_map/screens/city_map_screen.dart';
 
 import '../../../app/sync/sync_service.dart';
+import '../../../core/layout/app_view_size.dart';
 import '../../building_types/repo/building_type_input_repository.dart';
 import '../../building_types/repo/building_type_output_repository.dart';
 
@@ -71,6 +72,10 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final vp = AppViewSize.of(context);
+    final double targetW = vp.targetW;
+    final double targetH = vp.targetH;
+
     final fields = <Widget>[
       TextFormField(
         controller: _userCtrl,
@@ -110,22 +115,27 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
     ];
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Авторизация')),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_loading) const LinearProgressIndicator(),
-                  const SizedBox(height: 8),
-                  ...fields,
-                ],
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints.tightFor(width: targetW, height: targetH),
+        child: Scaffold(
+          appBar: AppBar(title: const Text('Авторизация')),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_loading) const LinearProgressIndicator(),
+                      const SizedBox(height: 8),
+                      ...fields,
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
