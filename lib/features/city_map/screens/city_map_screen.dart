@@ -266,6 +266,7 @@ class _CityMapScreenState extends State<CityMapScreen>
                 height: targetH,
                 wight: targetW,
                 onBuyBuildingType: _spawnFromTypeAndEnterMove,
+                userLevel: userLvl,
               ),
             ],
           ),

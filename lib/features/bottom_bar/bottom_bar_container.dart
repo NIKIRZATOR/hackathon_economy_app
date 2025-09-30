@@ -9,10 +9,12 @@ class CityMapBottomBar extends StatelessWidget {
     required this.height,
     required this.wight,
     required this.onBuyBuildingType,
+    required this.userLevel,
   });
 
   final double height;
   final double wight;
+  final int userLevel;
   final void Function(BuildingType) onBuyBuildingType;
 
   @override
@@ -28,7 +30,7 @@ class CityMapBottomBar extends StatelessWidget {
           ),
           TextButton(
             onPressed: () async {
-              final selected = await openShop(context, height, wight);
+              final selected = await openShop(context, height, wight, userLevel);
               if (selected != null) {
                 onBuyBuildingType(selected);
               }
