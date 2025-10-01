@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hackathon_economy_app/features/resource/model/resource_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../user_resource/model/user_resource_model.dart';
@@ -89,5 +90,48 @@ class UserInventoryStorage {
     if (delta == 0) return;
     final curr = await getAmountByCodeSafe(userId, code);
     await setAmountByCode(userId: userId, code: code, amount: curr + delta);
+  }
+
+  // создать/обновить по коду ресурса
+  Future<void> upsertByCode({
+    required int userId,
+    required String code,
+    required double amount,
+    required ResourceItem Function(String code) resourceFactory,
+  }) async {
+    final items = await load(userId);
+    final idx = items.indexWhere((e) => e.resource.code == code);
+    if (idx >= 0) {
+      items[idx] = items[idx].copyWith(amount: amount);
+    } else {
+      final res = resourceFactory(code);
+      items.add(UserResource(
+        idUserResource: -1, // локальный временный id
+        userId: userId,
+        amount: amount,
+        resource: res,
+      ));
+    }
+    await saveAll(userId, items);
+  }
+
+// безопасная установка по коду (создаёт при отсутствии)
+  Future<void> setAmountByCodeSafe({
+    required int userId,
+    required String code,
+    required double amount,
+    required ResourceItem Function(String code) resourceFactory,
+  }) => upsertByCode(userId: userId, code: code, amount: amount, resourceFactory: resourceFactory);
+
+// начисление по коду (создаёт при отсутствии)
+  Future<void> addByCodeSafe({
+    required int userId,
+    required String code,
+    required double delta,
+    required ResourceItem Function(String code) resourceFactory,
+  }) async {
+    if (delta == 0) return;
+    final curr = await getAmountByCodeSafe(userId, code);
+    await setAmountByCodeSafe(userId: userId, code: code, amount: curr + delta, resourceFactory: resourceFactory);
   }
 }

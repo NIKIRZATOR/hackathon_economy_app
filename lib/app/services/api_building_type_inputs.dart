@@ -6,17 +6,56 @@ class ApiBuildingTypeInput {
   final _dio = ApiClient.I.dio;
   static const _base = '/building-type-input';
 
+
+  Map<String, dynamic> _pickBuildingType(Map<String, dynamic>? src) {
+    if (src == null) return {};
+    return {
+      'idBuildingType': src['idBuildingType'],
+      'titleBuildingType': src['titleBuildingType'],
+      'imagePath': src['imagePath'],
+      //'wSize': src['wSize'],
+      //'hSize': src['hSize'],
+      //'cost': src['cost'],
+      //'unlockLevel': src['unlockLevel'],
+      'maxUpgradeLvl': src['maxUpgradeLvl'],
+    };
+  }
+
+  Map<String, dynamic> _pickResource(Map<String, dynamic>? src) {
+    if (src == null) return {};
+    return {
+      'idResource': src['idResource'] ?? src['idItem'],
+      'title': src['title'],
+      'code': src['code'],
+      'imagePath': src['imagePath'],
+      'resourceCost': src['resourceCost'],
+      //'isCurrency': src['isCurrency'],
+      //'isStorable': src['isStorable'],
+    };
+  }
+
   Map<String, dynamic> _flatten(Map<String, dynamic> e) {
     final bt = (e['buildingType'] as Map<String, dynamic>?) ?? const {};
     final res = (e['resource'] as Map<String, dynamic>?) ?? const {};
+
     return {
       'idBuildingTypeInput': e['idBuildingTypeInput'] ?? e['id'],
       'idBuildingType': bt['idBuildingType'] ?? e['idBuildingType'],
       'idResource': res['idResource'] ?? res['idItem'] ?? e['idResource'],
+
+      'consumeMode': e['consumeMode'],
+      'consumePerCycle': e['consumePerCycle'],
+      'cycleDuration': e['cycleDuration'],
+      'bufferForResource': e['bufferForResource'],
       'consumePerSec': e['consumePerSec'],
       'amountPerSec': e['amountPerSec'],
+
+      // срезы:
+      'buildingType': _pickBuildingType(bt),
+      'resource': _pickResource(res),
     };
   }
+
 
   Future<List<BuildingTypeInputModel>> getAll() async {
     final r = await _dio.get(_base);

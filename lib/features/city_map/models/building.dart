@@ -17,7 +17,7 @@ class Building {
   ui.Image? image;
 
   int? idUserBuilding; // id из UserCityStorage
-  int? idBuildingType; // тип из BuildingType.idBuildingType
+  final int? idBuildingType; // тип из BuildingType.idBuildingType
   String? clientId; // UserBuildingModel.clientId
 
   Building({

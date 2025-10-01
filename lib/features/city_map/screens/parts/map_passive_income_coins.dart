@@ -41,14 +41,20 @@ extension _PassiveIncome on _CityMapScreenState {
         _coinsDeltaStream.add(delta);
       }
 
-
-
-
       // начисляем монеты в локальный инвентарь
-      await _inventoryStorage.addByCode(
+      await _inventoryStorage.addByCodeSafe(
         userId: userId,
         code: _coinsCode,
         delta: delta,
+        resourceFactory: (c) => ResourceItem(
+          idResource: _coinsResourceId, // 1
+          title: 'Монета',
+          resourceCost: 1,
+          code: c,
+          isCurrency: true,
+          isStorable: true,
+          imagePath: null,
+        ),
       );
 
       // обновляем топбар
@@ -63,8 +69,7 @@ extension _PassiveIncome on _CityMapScreenState {
 
   /// Считает, сколько монет должно упасть за один тик, в *монетах*
   ///
-  /// Алгоритм расчета суммы монет за 1 ти
-  /// к
+  /// Алгоритм расчета суммы монет за 1 тик
   /// - produceMode == 'per_sec'  -> берём producePerSec (монет/сек)
   /// - produceMode == 'per_cycle' -> amountPerCycle / cycleDuration (монет/сек)
   /// Если поля заданы «смешанно» - приоритет у per_sec; если его нет — считаем по per_cycle.

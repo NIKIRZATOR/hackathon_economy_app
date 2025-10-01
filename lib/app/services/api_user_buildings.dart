@@ -54,6 +54,7 @@ class ApiUserBuilding {
     required int buildingTypeId,
     required int x,
     required int y,
+    required String clientId,
     int currentLevel = 1,
     String state = 'placed',
     DateTime? placedAt,
@@ -64,6 +65,7 @@ class ApiUserBuilding {
       'buildingType': {'idBuildingType': buildingTypeId},
       'x': x,
       'y': y,
+      'clientId': clientId,
       'currentLevel': currentLevel,
       'state': state,
       if (placedAt != null) 'placedAt': placedAt.toUtc().toIso8601String(),
@@ -75,7 +77,7 @@ class ApiUserBuilding {
   }
 
   // PUT /user-building/:idUserBuilding
-  Future<void> update(
+  Future<UserBuildingModel> update(
     int idUserBuilding, {
     int? x,
     int? y,
@@ -93,7 +95,8 @@ class ApiUserBuilding {
       if (lastUpgradeAt != null)
         'lastUpgradeAt': lastUpgradeAt.toUtc().toIso8601String(),
     };
-    await _dio.put('$_base/$idUserBuilding', data: body);
+    final r = await _dio.put('$_base/$idUserBuilding', data: body);
+    return UserBuildingModel.fromJson(_flatten(r.data as Map<String, dynamic>));
   }
 
   // DELETE /user-building/:idUserBuilding
