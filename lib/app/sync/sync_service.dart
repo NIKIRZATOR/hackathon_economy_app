@@ -26,6 +26,7 @@ class SyncService {
   final _cityStorage = UserCityStorage();
 
   final _apiUser = ApiUser();
+  final _api = ApiUserResource();
   final _apiUserRes = ApiUserResource();
   final _apiUserBuilding = ApiUserBuilding();
 
@@ -36,7 +37,7 @@ class SyncService {
   bool _busy = false;
   int? _userId;
 
-  Duration period = const Duration(seconds: 15);
+  Duration period = const Duration(seconds: 30);
 
   void start({required int userId}) {
     _userId = userId;
@@ -99,6 +100,12 @@ class SyncService {
         );
       } catch (_) {}
     }
+
+    // перечитываем сервер и кладём в кэш
+    try {
+      final fresh = await _api.getByUser(userId);
+      await _inventoryStorage.saveAll(userId, fresh);
+    } catch (_) {}
   }
 
   // Синхон зданий: читает локально и шлёт PUT /user-building/:idUserBuilding
@@ -114,9 +121,28 @@ class SyncService {
     for (final b in items) {
       if ((b.state ?? '') == 'preview') continue;
 
+      final hasServerId = b.idUserBuilding != null && b.idUserBuilding > 0;
+
       try {
-        // Попытка обновить
-        await _apiUserBuilding.update(
+        if (!hasServerId) {
+          // первый раз на сервер — только POST c clientId
+          final created = await _apiUserBuilding.create(
+            userId: b.idUser,
+            buildingTypeId: b.idBuildingType,
+            clientId: b.clientId ?? 'local_${b.idUserBuilding}',
+            x: b.x, y: b.y,
+            currentLevel: b.currentLevel,
+            state: b.state,
+            placedAt: b.placedAt,
+            lastUpgradeAt: b.lastUpgradeAt,
+          );
+
+          await _cityStorage.upsertSmart(userId, created); // склейка по clientId
+          continue;
+        }
+
+        // Обновление существующего
+        final updated = await _apiUserBuilding.update(
           b.idUserBuilding,
           x: b.x,
           y: b.y,
@@ -125,46 +151,28 @@ class SyncService {
           placedAt: b.placedAt,
           lastUpgradeAt: b.lastUpgradeAt,
         );
+
+        // update() теперь возвращает объект — положим в локалку
+        await _cityStorage.upsertSmart(userId, updated);
       } on DioException catch (e) {
         final code = e.response?.statusCode;
-
-        // Если 404 ИЛИ 400 то пробуем создать
-        if (code == 404 || code == 400) {
+        if (code == 404 || code == 400 || code == 409) {
+          // не нашли/конфликт — пробуем идемпотентный POST
           try {
             final created = await _apiUserBuilding.create(
               userId: b.idUser,
               buildingTypeId: b.idBuildingType,
-              x: b.x,
-              y: b.y,
+              clientId: b.clientId ?? 'local_${b.idUserBuilding}',
+              x: b.x, y: b.y,
               currentLevel: b.currentLevel,
               state: b.state,
               placedAt: b.placedAt,
               lastUpgradeAt: b.lastUpgradeAt,
             );
-
-            // переносим clientId (важно для ваших привязок на карте)
-            final merged = UserBuildingModel(
-              idUserBuilding: created.idUserBuilding,
-              clientId: b.clientId,
-              idUser: created.idUser,
-              idBuildingType: created.idBuildingType,
-              x: created.x,
-              y: created.y,
-              currentLevel: created.currentLevel,
-              state: created.state,
-              placedAt: created.placedAt,
-              lastUpgradeAt: created.lastUpgradeAt,
-            );
-
-            await _cityStorage.upsert(userId, merged);
-          } catch (createErr) {
-            // print('user-building POST failed: $createErr');
-          }
-        } else {
-          //  коды (401/403/500) = скип-демки
+            await _cityStorage.upsertSmart(userId, created);
+          } catch (_) {}
         }
-      } catch (_) {
-      }
+      } catch (_) {}
     }
   }
 
@@ -187,7 +195,6 @@ class SyncService {
 
 
 }
-
 // TODO ПРИ ВЫХОДЕ ОТКЛЮЧАТЬ
 // await _repo.signOutActive();
 // SyncService.I.stop();

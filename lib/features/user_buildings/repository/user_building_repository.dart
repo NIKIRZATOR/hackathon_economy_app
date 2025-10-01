@@ -29,6 +29,7 @@ class UserBuildingRepository {
     required int buildingTypeId,
     required int x,
     required int y,
+    required String clientId,
     int currentLevel = 1,
     String state = 'placed',
     DateTime? placedAt,
@@ -36,6 +37,7 @@ class UserBuildingRepository {
   }) => _api.create(
     userId: userId,
     buildingTypeId: buildingTypeId,
+    clientId: clientId,
     x: x, y: y,
     currentLevel: currentLevel,
     state: state,
@@ -43,7 +45,7 @@ class UserBuildingRepository {
     lastUpgradeAt: lastUpgradeAt,
   );
 
-  Future<void> update(int idUserBuilding, {
+  Future<UserBuildingModel> update(int idUserBuilding, {
     int? x, int? y, int? currentLevel,
     String? state, DateTime? placedAt, DateTime? lastUpgradeAt,
   }) => _api.update(

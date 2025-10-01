@@ -71,4 +71,20 @@ class UserCityStorage {
     await upsert(userId, ub);
     return ub;
   }
+
+  Future<void> upsertSmart(int userId, UserBuildingModel ub) async {
+    final items = await load(userId);
+
+    int idx = items.indexWhere((e) => e.idUserBuilding == ub.idUserBuilding);
+    if (idx < 0 && ub.clientId != null) {
+      idx = items.indexWhere((e) => e.clientId == ub.clientId);
+    }
+
+    if (idx >= 0) {
+      items[idx] = ub;
+    } else {
+      items.add(ub);
+    }
+    await saveAll(userId, items);
+  }
 }

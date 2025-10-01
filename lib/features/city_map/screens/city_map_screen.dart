@@ -8,6 +8,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
+import 'package:hackathon_economy_app/features/resource/model/resource_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as v_math;
 
@@ -116,30 +117,17 @@ class _CityMapScreenState extends State<CityMapScreen>
   List<UserResource> _inventory = [];
 
   Future<void> _loadInventory(int userId) async {
-    // 1) пробуем из сервера (и положим в кэш)
     try {
       _inventory = await _resRepo.syncFromServerAndCache(userId);
     } catch (_) {
-      // 2) если оффлайн — из кэша
       _inventory = await _resRepo.loadFromCache(userId);
     }
 
-    // монеты по коду 'coins'
-    final coins = _inventory
-        .firstWhere(
-          (e) => e.resource.code == 'coins',
-          orElse: () => UserResource(
-            idUserResource: -1,
-            userId: userId,
-            amount: 0,
-            resource: _inventory.isEmpty
-                ? _inventory.first.resource
-                : _inventory.first.resource,
-          ),
-        )
-        .amount;
-
-    if (mounted) setState(() => _coins = coins.toInt());
+    final coinsItem = _inventory.where((e) => e.resource.code == 'coins').toList();
+    if (coinsItem.isNotEmpty) {
+      if (mounted) setState(() => _coins = coinsItem.first.amount.toInt());
+    }
+    // если записи coins нет — ничего не трогаем, не ставим 0
   }
 
   /// инициализация экрана
@@ -158,11 +146,15 @@ class _CityMapScreenState extends State<CityMapScreen>
       if (mounted) setState(() => _grassTex = img);
     });
 
-    // 1-грузим каталог типов 2-поднимаем сохранённые здания
-    _loadTypesThenUserCity();
+    _loadTypesThenUserCity().then((_) {
+      _cityReady = true;
+      _maybeStartIncome();
+    });
 
-    // поднимем inputs/outputs из локального кэша
-    _loadIOFromCache();
+    _loadIOFromCache().then((_) {
+      _ioReady = true;
+      _maybeStartIncome();
+    });
   }
 
   Future<void> _initUser() async {
@@ -187,7 +179,18 @@ class _CityMapScreenState extends State<CityMapScreen>
     final uid = _user?.userId;
     if (uid != null) {
       await _loadInventory(uid);
-      await _rearmPassiveIncomeTicker(); // СТАРТ ТИКЕРА ПАССИВНЫХ МОНЕТ
+      _maybeStartIncome();
+    }
+  }
+
+  bool _cityReady = false;
+  bool _ioReady = false;
+
+  void _maybeStartIncome() {
+    final uid = _user?.userId;
+    if (uid == null) return;
+    if (_cityReady && _ioReady) {
+      _rearmPassiveIncomeTicker(); // проверит и запустит
     }
   }
 
