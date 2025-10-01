@@ -4,12 +4,16 @@ class BuildingTypeInputModel {
   final int idResource; // resource_items.id_item
 
   final String? consumeMode; // per_sec | per_cycle | null
-  final double? consumePerCycle; // сколько тратится за 1 цикл (если per_cycle)
-  final int? cycleDuration; // сек (если consumeMode == per_cycle)
+  final double? consumePerCycle; // расход за цикл
+  final int? cycleDuration; // сек (если per_cycle)
   final int? bufferForResource;
 
   final double? consumePerSec;
   final double? amountPerSec;
+
+  // храним вложенные объекты целиком
+  final Map<String, dynamic>? buildingType;
+  final Map<String, dynamic>? resource;
 
   BuildingTypeInputModel({
     required this.idBuildingTypeInput,
@@ -21,9 +25,10 @@ class BuildingTypeInputModel {
     this.bufferForResource,
     this.consumePerSec,
     this.amountPerSec,
+    this.buildingType,
+    this.resource,
   });
 
-  // поддержка плоского и вложенного форматов
   factory BuildingTypeInputModel.fromJson(Map<String, dynamic> json) {
     final bt = (json['buildingType'] as Map<String, dynamic>?) ?? const {};
     final res = (json['resource'] as Map<String, dynamic>?) ?? const {};
@@ -31,15 +36,15 @@ class BuildingTypeInputModel {
     return BuildingTypeInputModel(
       idBuildingTypeInput: json['idBuildingTypeInput'] ?? json['id'],
       idBuildingType: bt['idBuildingType'] ?? json['idBuildingType'],
-      idResource: res['idResource'] ?? json['idResource'],
-
+      idResource: res['idResource'] ?? json['idResource'] ?? res['idItem'],
       consumeMode: json['consumeMode'],
       consumePerCycle: (json['consumePerCycle'] as num?)?.toDouble(),
       cycleDuration: json['cycleDuration'],
       bufferForResource: json['bufferForResource'],
-
       consumePerSec: (json['consumePerSec'] as num?)?.toDouble(),
       amountPerSec: (json['amountPerSec'] as num?)?.toDouble(),
+      buildingType: json['buildingType'] as Map<String, dynamic>?,
+      resource: json['resource'] as Map<String, dynamic>?,
     );
   }
 
@@ -53,5 +58,7 @@ class BuildingTypeInputModel {
     if (bufferForResource != null) 'bufferForResource': bufferForResource,
     if (consumePerSec != null) 'consumePerSec': consumePerSec,
     if (amountPerSec != null) 'amountPerSec': amountPerSec,
+    if (buildingType != null) 'buildingType': buildingType,
+    if (resource != null) 'resource': resource,
   };
 }

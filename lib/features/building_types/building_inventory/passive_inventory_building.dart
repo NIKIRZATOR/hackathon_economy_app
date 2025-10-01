@@ -6,11 +6,11 @@ import '../model/building_type_output.dart';
 class PassiveInventoryView extends StatelessWidget {
   const PassiveInventoryView({
     super.key,
-    required this.b,
+    required this.building,
     required this.outputs,
   });
 
-  final Building b;
+  final Building building;
   final List<BuildingTypeOutputModel> outputs;
 
   @override
@@ -19,7 +19,7 @@ class PassiveInventoryView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _infoRow('Уровень', b.level.toString()),
+        _infoRow('Уровень', building.level.toString()),
         const SizedBox(height: 8),
         const Text(
           'Пассивный доход',

@@ -31,24 +31,24 @@ extension _OpenBuildCardFromMapDialog on _CityMapScreenState {
   ];
 
   /// распределение диалогов: если для building_type есть inputs — показываем рецепты, иначе — пассив.
-  void _openBuildingDialog(Building b) async {
-    debugPrint('[tap] building=${b.name} idType=${b.idBuildingType}');
+  void _openBuildingDialog(Building building) async {
+    debugPrint('[tap] building=${building.name} idType=${building.idBuildingType}');
 
     final inputsByType  = await BtCache.inputsByType();
     final outputsByType = await BtCache.outputsByType();
 
-    final inputs  = inputsByType[b.idBuildingType]  ?? const <BuildingTypeInputModel>[];
-    final outputs = outputsByType[b.idBuildingType] ?? const <BuildingTypeOutputModel>[];
+    final inputs  = inputsByType[building.idBuildingType]  ?? const <BuildingTypeInputModel>[];
+    final outputs = outputsByType[building.idBuildingType] ?? const <BuildingTypeOutputModel>[];
     final isRecipe = inputs.isNotEmpty;
 
     await showDialogWithSound(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(b.name),
+        title: Text(building.name),
         content: isRecipe
-            ? RecipeInventoryView(b: b, inputs: inputs, outputs: outputs)
-            : PassiveInventoryView(b: b, outputs: outputs),
-        actions: _commonActions(ctx, b),
+            ? RecipeInventoryView(b: building, inputs: inputs, outputs: outputs)
+            : PassiveInventoryView(building: building, outputs: outputs),
+        actions: _commonActions(ctx, building),
       ),
     );
   }
