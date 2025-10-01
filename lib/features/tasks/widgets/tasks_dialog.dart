@@ -43,8 +43,12 @@ class _TasksDialogState extends State<TasksDialog> {
     final theme = Theme.of(context);
     final tasks = [...widget.tasks]..sort((a, b) => a.order.compareTo(b.order));
     
-    return Padding(
-      padding: const EdgeInsets.all(10),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.background,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      padding: EdgeInsets.all(10),
       child: ListView.separated(
         shrinkWrap: true,
         itemCount: tasks.length,

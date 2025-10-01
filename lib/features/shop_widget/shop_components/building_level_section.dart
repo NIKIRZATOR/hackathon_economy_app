@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../building_types/model/building_type_model.dart';
 import 'building_type_card.dart';
-import 'level_lock_overlay.dart'; // ← добавили импорт
+import 'level_lock_overlay.dart';
 
 class BuildingLevelSection extends StatefulWidget {
   const BuildingLevelSection({
@@ -43,21 +43,23 @@ class _BuildingLevelSectionState extends State<BuildingLevelSection> {
     final theme = Theme.of(context);
 
     final section = Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black.withOpacity(0.12)),
         borderRadius: BorderRadius.circular(10),
+        color: theme.colorScheme.background,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Уровень ${widget.level}', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 10),
+          Text(
+            'Уровень ${widget.level}',
+            style: const TextStyle(
+              fontSize: 17,
+              fontWeight: FontWeight.w500,
+            )
+          ),          
           LayoutBuilder(
             builder: (context, c) {
               final cardW = (c.maxWidth * 0.28).clamp(130, 180).toDouble();
-
               final row = Row(
                 children: [
                   for (final bt in widget.items) ...[
@@ -67,7 +69,6 @@ class _BuildingLevelSectionState extends State<BuildingLevelSection> {
                       screenHeight: widget.screenHeight,
                       screenWight: widget.screenWight,
                     ),
-                    const SizedBox(width: 12),
                   ],
                 ],
               );
@@ -77,12 +78,14 @@ class _BuildingLevelSectionState extends State<BuildingLevelSection> {
                 thumbVisibility: true,
                 trackVisibility: true,
                 notificationPredicate: (_) => true,
+                scrollbarOrientation: ScrollbarOrientation.bottom,
                 child: AbsorbPointer(
-                  absorbing: widget.locked, // блокируем клики внутри
+                  absorbing: widget.locked,
                   child: SingleChildScrollView(
                     controller: _hCtrl,
                     scrollDirection: Axis.horizontal,
                     child: row,
+                    padding: const EdgeInsets.only(bottom: 10),
                   ),
                 ),
               );
@@ -92,7 +95,6 @@ class _BuildingLevelSectionState extends State<BuildingLevelSection> {
       ),
     );
 
-    // Оборачиваем секцию в оверлей блокировки
     return LevelLockOverlay(
       child: section,
       locked: widget.locked,

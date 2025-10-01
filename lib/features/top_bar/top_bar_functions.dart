@@ -47,6 +47,8 @@ Future<void> openSettings(BuildContext context, {required int userId}) async {
     builder: (_) {
       return StatefulBuilder(
         builder: (context, setState) {
+          final theme = Theme.of(context);
+
           return AlertDialog(
             title: Row(
               mainAxisSize: MainAxisSize.min,
@@ -62,7 +64,7 @@ Future<void> openSettings(BuildContext context, {required int userId}) async {
                     String tip;
                     switch (st) {
                       case SyncStatus.syncing:
-                        color = Colors.amber;        // жёлтый — идёт синк
+                        color = theme.colorScheme.outline;        // жёлтый — идёт синк
                         icon = Icons.sync;
                         tip = 'Синхронизация…';
                         break;
@@ -73,7 +75,7 @@ Future<void> openSettings(BuildContext context, {required int userId}) async {
                         break;
                       case SyncStatus.idle:
                       default:
-                        color = Colors.green;        // зелёный — всё ок или простой
+                        color = theme.colorScheme.outline;        // зелёный — всё ок или простой
                         icon = Icons.check_circle;
                         tip = 'Синхронизация завершена';
                     }

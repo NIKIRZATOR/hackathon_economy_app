@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+// import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
+import 'package:hackathon_economy_app/core/ui/MainTextButton.dart';
 import '../../building_types/model/building_type_model.dart';
 import 'building_type_details_dialog.dart';
 
@@ -7,7 +9,7 @@ class BuildingTypeCard extends StatelessWidget {
   const BuildingTypeCard({
     super.key,
     required this.bt,
-    this.width = 140,
+    this.width = 160,
     required this.screenHeight,
     required this.screenWight,
   });
@@ -42,48 +44,74 @@ class BuildingTypeCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: SizedBox(
         width: width,
+        height: 260,
         child: Card(
           elevation: 0,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.black.withValues(alpha: .15)),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.fromLTRB(6, 6, 6, 12),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                AspectRatio(
-                  aspectRatio: 1,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: bt.imageAsset != null
-                        ? ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
-                        bt.imageAsset!,
-                        fit: BoxFit.cover,
+                const Spacer(),
+                bt.imageAsset != null
+                    ? ClipRect(
+                        child: Align(
+                          alignment: Alignment.center,
+                          heightFactor: 0.85,
+                          child: Image.asset(
+                            bt.imageAsset!,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    : const Center(child: Icon(Icons.apartment, size: 36)),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                  child: SizedBox(
+                    height: 2 * 15 * 1.2,
+                    child: Center(
+                      child: Text(
+                        bt.titleBuildingType,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                          height: 1.2,
+                        ),
                       ),
-                    )
-                        : const Center(child: Icon(Icons.apartment, size: 36)),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  bt.titleBuildingType,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.titleSmall,
-                ),
-                const SizedBox(height: 4),
-                Text('Размер: ${bt.wSize}×${bt.hSize}', style: theme.textTheme.bodySmall),
-                const SizedBox(height: 6),
-                Text(
-                  '${bt.cost} р',
-                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                Padding (
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+                  child: MainTextButton(
+                    child: Row (      
+                      children: [
+                        Image.asset(
+                            'assets/images/resources/coin.png',
+                            width: 20,
+                            height: 20,
+                          ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${bt.cost}',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop<BuildingType>(bt);
+                    },
+                  ),
                 ),
               ],
             ),
