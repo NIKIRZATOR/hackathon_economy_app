@@ -1,0 +1,15 @@
+// body:
+   // {
+   //   "userBuilding":{"idUserBuilding":123},
+   //   "resourceIn":{"idResource":5},
+   //   "resourceOut":{"idResource":1},
+   //   "cycleDurationSec":30,
+   //   "inPerCycle":1,
+   //   "outPerCycle":5,
+   //   "totalToProcess":7,
+   //   "processedCount":0,     // опционально
+   //   "readyOut":0,           // опционально
+   //   "startedAtClient":"2025-10-01T07:30:00Z",
+   //   "state":"running"       // опционально (по умолчанию running)
+   // }
+

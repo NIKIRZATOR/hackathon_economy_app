@@ -100,31 +100,31 @@ class UserBuildingProgressModel {
         state: state ?? this.state,
       );
 
-  // --- Вспомогательные вычисления для UI ---
+  //  вычисления для UI
 
-  /// Сколько сек прошло от server-start до [nowUtc].
+  // cколько сек прошло от server-start до текущего по UTC
   int elapsedSec(DateTime nowUtc) =>
       nowUtc.difference(startedAtServer).inSeconds.clamp(0, 1 << 31);
 
-  /// Теоретически завершено циклов по времени (без учёта processedCount/totalToProcess).
+  // теоретически завершено циклов по времени (без учёта processedCount/totalToProcess).
   int cyclesByTime(DateTime nowUtc) =>
       (elapsedSec(nowUtc) / cycleDurationSec).floor();
 
-  /// Максимально возможные завершённые циклы сейчас (учёт total, времени и уже обработанных).
+  // возможно завершённые циклы сейчас (учёт total, времени и уже обработанных).
   int maxProcessableNow(DateTime nowUtc) {
     final byTime = cyclesByTime(nowUtc);
     return (byTime).clamp(0, totalToProcess);
   }
 
-  /// Сколько осталось циклов до полного завершения.
+  // сколько осталось циклов до полного завершения.
   int remainingCycles(DateTime nowUtc) =>
       (totalToProcess - maxProcessableNow(nowUtc)).clamp(0, totalToProcess);
 
-  /// Прогресс 0..1 для прогрессбара по времени (без учёта ручных сабмитов).
+  // прогресс 0..1 для прогрессбара по времени
   double timeProgress01(DateTime nowUtc) =>
       (cyclesByTime(nowUtc) / totalToProcess).clamp(0.0, 1.0);
 
-  /// Время в сек до окончания следующего цикла (для таймера).
+  // время в сек до окончания следующего цикла (для таймера).
   int secToNextTick(DateTime nowUtc) {
     final passed = elapsedSec(nowUtc);
     final mod = passed % cycleDurationSec;

@@ -36,6 +36,7 @@ extension _CityPersistSaveLoadUpdate on _CityMapScreenState {
           fill: Colors.blue.withValues(alpha: .65),
           border: Colors.blueGrey,
           imageAsset: imageAsset,
+          idBuildingType: ub.idBuildingType,
         );
         buildings.add(b);
 

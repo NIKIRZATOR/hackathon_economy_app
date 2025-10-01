@@ -1,5 +1,6 @@
 // lib/features/city_map/screens/city_map_screen.dart
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:math';
 import 'dart:ui' as ui;
@@ -7,6 +8,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as v_math;
 
 import 'package:hackathon_economy_app/features/top_bar/city_top_bar.dart';
@@ -15,6 +17,9 @@ import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 import '../../../app/repository/auth_repository.dart';
+import '../../building_types/building_inventory/passive_inventory_building.dart';
+import '../../building_types/building_inventory/read_building_type_in_out.dart';
+import '../../building_types/building_inventory/recipe_inventory_building.dart';
 import '../../building_types/model/building_type_input.dart';
 import '../../building_types/model/building_type_model.dart';
 import '../../building_types/model/building_type_output.dart';
