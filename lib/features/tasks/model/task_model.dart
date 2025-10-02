@@ -1,48 +1,48 @@
-/// Модель игрового задания.
-/// Поля из ТЗ:
-/// - id (int)
-/// - текст задания (text)
-/// - порядковый номер (order)
-/// - на каком уровне доступно (unlockLevel)
-/// - количество опыта (xp)
-class GameTask {
-  final int id;
-  final String text;
-  final int order;
-  final int unlockLevel;
+class LevelTask {
+  final String id;
+  final String title;
+  final String type; // build | save_coins | deposit | upgrade | loan | almanac
   final int xp;
 
-  const GameTask({
+  LevelTask({
     required this.id,
-    required this.text,
-    required this.order,
-    required this.unlockLevel,
+    required this.title,
+    required this.type,
     required this.xp,
   });
 
-  /// Основное соответствие snake_case-ключам от сервера.
-  factory GameTask.fromJson(Map<String, dynamic> json) => GameTask(
-    id: json['id_task'] ?? json['id'] ?? 0,
-    text: json['text'] ?? '',
-    order: json['order'] ?? json['order_num'] ?? 0,
-    unlockLevel: json['unlock_level'] ?? 1,
-    xp: json['xp'] ?? json['experience'] ?? 0,
-  );
+  factory LevelTask.fromJson(Map<String, dynamic> j) =>
+      LevelTask(id: j['id'], title: j['title'], type: j['type'], xp: j['xp']);
+}
 
-  Map<String, dynamic> toJson() => {
-    'id_task': id,
-    'text': text,
-    'order': order,
-    'unlock_level': unlockLevel,
-    'xp': xp,
-  };
+class LevelInfo {
+  final int level;
+  final int requiredXp;
+  final int rewardCoins;
+  final List<LevelTask> tasks;
 
-  /// Фабрика под возможные мок-ключи (если отличаются).
-  factory GameTask.fromMockJson(Map<String, dynamic> json) => GameTask(
-    id: json['id'] ?? json['task_id'] ?? 0,
-    text: json['text'] ?? json['title'] ?? '',
-    order: json['order'] ?? json['index'] ?? 0,
-    unlockLevel: json['unlock_level'] ?? json['level'] ?? 1,
-    xp: json['xp'] ?? json['reward_xp'] ?? 0,
+  LevelInfo({
+    required this.level,
+    required this.requiredXp,
+    required this.rewardCoins,
+    required this.tasks,
+  });
+
+  factory LevelInfo.fromJson(Map<String, dynamic> j) => LevelInfo(
+    level: j['level'],
+    requiredXp: j['requiredXp'],
+    rewardCoins: (j['reward']?['coins'] ?? 0) as int,
+    tasks: (j['tasks'] as List).map((t) => LevelTask.fromJson(t)).toList(),
   );
+}
+
+class LevelsData {
+  final List<LevelInfo> levels;
+  LevelsData(this.levels);
+
+  factory LevelsData.fromJson(Map<String, dynamic> j) =>
+      LevelsData((j['levels'] as List).map((l) => LevelInfo.fromJson(l)).toList());
+
+  LevelInfo byLevel(int n) =>
+      levels.firstWhere((l) => l.level == n, orElse: () => levels.first);
 }
