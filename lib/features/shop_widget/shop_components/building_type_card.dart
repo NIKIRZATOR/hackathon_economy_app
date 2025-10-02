@@ -59,7 +59,6 @@ class BuildingTypeCard extends StatelessWidget {
                     ? ClipRect(
                         child: Align(
                           alignment: Alignment.center,
-                          heightFactor: 0.85,
                           child: Image.asset(
                             bt.imageAsset!,
                             fit: BoxFit.cover,
