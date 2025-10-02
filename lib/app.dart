@@ -13,7 +13,7 @@ class CapitalCityApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Город Капитала — MVP Map',
+      title: 'Город Капитала',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       builder: (context, child) {

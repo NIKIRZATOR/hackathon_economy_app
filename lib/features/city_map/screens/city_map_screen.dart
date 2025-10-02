@@ -127,7 +127,8 @@ class _CityMapScreenState extends State<CityMapScreen>
       _inventory = await _resRepo.loadFromCache(userId);
     }
 
-    final coinsItem = _inventory.where((e) => e.resource.code == 'coins').toList();
+    final coinsItem =
+    _inventory.where((e) => e.resource.code == 'coins').toList();
     if (coinsItem.isNotEmpty) {
       if (mounted) setState(() => _coins = coinsItem.first.amount.toInt());
     }
@@ -239,46 +240,35 @@ class _CityMapScreenState extends State<CityMapScreen>
     AudioManager().playMusic('background.mp3');
     mapInit();
     _initUser();
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addObserver(this);
-  AudioManager().setMusicVolume(0.3);
-  AudioManager().playMusic('background.mp3');
-  mapInit();
-  _initUser();
 
-  // Показ обзора интерфейса после первого кадра (из misha_login_page)
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (!mounted) return;
-    TutorialService.I.showCityUiTour(
-      context,
-      profileKey: profileButtonKey,
-      settingsKey: settingsButtonKey,
-      tasksKey: tasksButtonKey,
-      shopKey: shopButtonKey,
-      almanacKey: almanacButtonKey,
-    );
-  });
-
-  // Подписки на события уровня и монет (из main)
-  UserEvents.I.xpLevelStream.listen((v) {
-    if (!mounted) return;
-    setState(() {
-      _playerLevel  = v.level;
-      _requiredXpUi = v.required;
+    // Показ обзора интерфейса после первого кадра (UI-тур)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      TutorialService.I.showCityUiTour(
+        context,
+        profileKey: profileButtonKey,
+        settingsKey: settingsButtonKey,
+        tasksKey: tasksButtonKey,
+        shopKey: shopButtonKey,
+        almanacKey: almanacButtonKey,
+      );
     });
-  });
 
-  _coinsSub = UserEvents.I.coinsDeltaStream.listen((delta) {
-    if (!mounted) return;
-    setState(() {
-      _coins = (_coins + delta).clamp(0, 1 << 31);
+    // Подписки на обновления уровня/XP и дельты монет
+    UserEvents.I.xpLevelStream.listen((v) {
+      if (!mounted) return;
+      setState(() {
+        _playerLevel = v.level;
+        _requiredXpUi = v.required; // для топ-бара
+      });
     });
-    // анимация "+X"
-    _coinsDeltaStream.add(delta.toDouble());
-  });
-}
+    _coinsSub = UserEvents.I.coinsDeltaStream.listen((delta) {
+      if (!mounted) return;
+      setState(() {
+        _coins = (_coins + delta).clamp(0, 1 << 31);
+      });
+      // анимация "+X"
+      _coinsDeltaStream.add(delta.toDouble());
     });
   }
 
@@ -304,7 +294,6 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-
     final vp = AppViewSize.of(context);
     final double targetW = vp.targetW;
     final double targetH = vp.targetH;
@@ -320,43 +309,43 @@ void initState() {
         width: targetW,
         height: targetH,
         child: Scaffold(
-            body: Stack(
-  children: [
-    Positioned.fill(
-      child: buildMapCanvas(),
-    ),
-    Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: CityTopBar(
-        user: _user,
-        userId: userId,
-        userLvl: userLvl,
-        xpCount: xpCount,
-        coinsCount: _coins,
-        coinsDeltaStream: _coinsDeltaStream.stream,
-        cityTitle: cityName,
-        screenHeight: targetH,
-        screenWidth: targetW,
-        // расширенные пропсы из main
-        xpLevelStream: UserEvents.I.xpLevelStream,
-        requiredXp: _requiredXpUi,
-      ),
-    ),
-    Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: CityMapBottomBar(
-        height: targetH,
-        wight: targetW,
-        onBuyBuildingType: _spawnFromTypeAndEnterMove,
-        // актуальный уровень игрока из стрима
-        userLevel: _playerLevel,
+          body: Stack(
+            children: [
+              Positioned.fill(
+                child: buildMapCanvas(),
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: CityTopBar(
+                  user: _user,
+                  userId: userId,
+                  userLvl: userLvl,
+                  xpCount: xpCount,
+                  coinsCount: _coins,
+                  coinsDeltaStream: _coinsDeltaStream.stream,
+                  cityTitle: cityName,
+                  screenHeight: targetH,
+                  screenWidth: targetW,
+                  // расширенные параметры из main
+                  xpLevelStream: UserEvents.I.xpLevelStream,
+                  requiredXp: _requiredXpUi,
                 ),
-              ],
-            )
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: CityMapBottomBar(
+                  height: targetH,
+                  wight: targetW,
+                  onBuyBuildingType: _spawnFromTypeAndEnterMove,
+                  userLevel: _playerLevel,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
