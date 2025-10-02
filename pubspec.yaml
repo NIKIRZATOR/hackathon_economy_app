@@ -41,6 +41,9 @@ flutter:
     - assets/audio/music/
     - assets/audio/sfx/
     - assets/images/buildings/
+    - assets/images/Misha/
+    - assets/audio/music/
+    - assets/audio/sfx/
     - assets/mock_data/
     - assets/images/almanac/
 

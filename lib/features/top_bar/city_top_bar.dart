@@ -6,6 +6,10 @@ import '../../core/ui/OvalFOrCoins.dart';
 import '../../core/ui/xp_progress_oval.dart';
 import 'top_bar_functions.dart';
 
+// Ключи для обзора интерфейса (профиль и настройки)
+final profileButtonKey = GlobalKey();
+final settingsButtonKey = GlobalKey();
+
 class CityTopBar extends StatelessWidget {
   const CityTopBar({
     super.key,
@@ -46,18 +50,22 @@ class CityTopBar extends StatelessWidget {
           children: [
             Row(
               children: [
-                StarButton(
-                  text: '$userLvl',
-                  assetPath: 'assets/images/svg/star.svg',
-                  size: 70,
-                  onPressed: () => openLevelInfo(
-                    context,
-                    userId: userId,
-                    level: userLvl,
-                    username: user?.username,
-                    cityTitle: cityTitle,
-                    hostWidth: screenWidth,
-                    hostHeight: screenHeight,
+                // Профиль (звезда/уровень) с ключом
+                KeyedSubtree(
+                  key: profileButtonKey,
+                  child: StarButton(
+                    text: '$userLvl',
+                    assetPath: 'assets/images/svg/star.svg',
+                    size: 70,
+                    onPressed: () => openLevelInfo(
+                      context,
+                      userId: userId,
+                      level: userLvl,
+                      username: user?.username,
+                      cityTitle: cityTitle,
+                      hostWidth: screenWidth,
+                      hostHeight: screenHeight,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 20),
@@ -82,9 +90,13 @@ class CityTopBar extends StatelessWidget {
                 ),
               ],
             ),
-            MainIconButton(
-              icon: Icons.settings,
-              onPressed: () => openSettings(context, userId: userId),
+            // Настройки с ключом
+            KeyedSubtree(
+              key: settingsButtonKey,
+              child: MainIconButton(
+                icon: Icons.settings,
+                onPressed: () => openSettings(context, userId: userId),
+              ),
             ),
           ],
         ),

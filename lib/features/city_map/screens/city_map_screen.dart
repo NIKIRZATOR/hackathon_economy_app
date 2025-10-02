@@ -45,6 +45,9 @@ import '../services/static_city_layout.dart';
 import '../services/user_city_storage.dart';
 import '../services/user_inventory_storage.dart';
 
+// 🔽 импорт сервиса обучения
+import '../../tutorial/service/tutorial_service.dart';
+
 part 'parts/map_constants.dart';
 part 'parts/map_passive_income_coins.dart';
 part 'parts/load_build_in_out_put.dart';
@@ -223,6 +226,19 @@ class _CityMapScreenState extends State<CityMapScreen>
     AudioManager().playMusic('background.mp3');
     mapInit();
     _initUser();
+
+    // Показ обзора интерфейса после первого кадра
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      TutorialService.I.showCityUiTour(
+        context,
+        profileKey: profileButtonKey,
+        settingsKey: settingsButtonKey,
+        tasksKey: tasksButtonKey,
+        shopKey: shopButtonKey,
+        almanacKey: almanacButtonKey,
+      );
+    });
   }
 
   @override
@@ -262,40 +278,40 @@ class _CityMapScreenState extends State<CityMapScreen>
         width: targetW,
         height: targetH,
         child: Scaffold(
-          body: Stack(
-            children: [
-              Positioned.fill(
-                child: buildMapCanvas(),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: CityTopBar(
-                  user: _user,
-                  userId: userId,
-                  userLvl: userLvl,
-                  xpCount: xpCount,
-                  coinsCount: _coins,
-                  coinsDeltaStream: _coinsDeltaStream.stream,
-                  cityTitle: cityName,
-                  screenHeight: targetH,
-                  screenWidth: targetW,
+            body: Stack(
+              children: [
+                Positioned.fill(
+                  child: buildMapCanvas(),
                 ),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: CityMapBottomBar(
-                  height: targetH,
-                  wight: targetW,
-                  onBuyBuildingType: _spawnFromTypeAndEnterMove,
-                  userLevel: userLvl,
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: CityTopBar(
+                    user: _user,
+                    userId: userId,
+                    userLvl: userLvl,
+                    xpCount: xpCount,
+                    coinsCount: _coins,
+                    coinsDeltaStream: _coinsDeltaStream.stream,
+                    cityTitle: cityName,
+                    screenHeight: targetH,
+                    screenWidth: targetW,
+                  ),
                 ),
-              ),
-            ],
-          )
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: CityMapBottomBar(
+                    height: targetH,
+                    wight: targetW,
+                    onBuyBuildingType: _spawnFromTypeAndEnterMove,
+                    userLevel: userLvl,
+                  ),
+                ),
+              ],
+            )
         ),
       ),
     );
