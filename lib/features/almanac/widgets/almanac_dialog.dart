@@ -1,4 +1,3 @@
-// lib/features/almanac/widgets/almanac_dialog.dart
 import 'package:flutter/material.dart';
 import 'almanac_article_dialog.dart';
 
@@ -75,7 +74,12 @@ class AlmanacDialog extends StatelessWidget {
         return SizedBox(
           height: availH,
           width: availW,
-          child: Padding(
+          child: Container(
+            // Фикс: голубой фон и скругление как на макете
+            decoration: BoxDecoration(
+              color: const Color(0xFFBDCEFA),
+              borderRadius: BorderRadius.circular(10),
+            ),
             padding: const EdgeInsets.all(12),
             child: ScrollConfiguration(
               behavior: ScrollConfiguration.of(context).copyWith(
@@ -97,7 +101,8 @@ class AlmanacDialog extends StatelessWidget {
   // Заголовок для правой карты «награды» — следующий уровень
   static String _rewardTitleForLevel(int level) => '${level + 1}-й уровень';
 
-  void _openArticle(BuildContext context, String productTitle, String assetFromList) {
+  void _openArticle(
+      BuildContext context, String productTitle, String assetFromList) {
     final data = kAlmanacArticlesByProduct[productTitle];
 
     final theory = data?.theory ?? 'Контент в разработке.';
@@ -111,7 +116,8 @@ class AlmanacDialog extends StatelessWidget {
       barrierDismissible: true,
       builder: (ctx) {
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          insetPadding:
+          const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           backgroundColor: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
@@ -198,14 +204,13 @@ class _LessonTile extends StatelessWidget {
               text: title,
               style: TextStyle(
                 color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w200, // как у тебя
-                fontSize: 14,                // можно подправить при желании
-                height: 1.2,                 // межстрочный интервал
+                fontWeight: FontWeight.w200,
+                fontSize: 14,
+                height: 1.2,
               ),
               maxLinesVisible: 2,
             ),
           ),
-
           const SizedBox(width: 8),
           _ReadPinkPill(text: 'Читать', onTap: onRead),
         ],
@@ -292,6 +297,60 @@ class _BlueCenterCard extends StatelessWidget {
   }
 }
 
+class _BlueCenterPrizeCard extends StatelessWidget {
+  final String iconAsset;
+  final int amount;
+  const _BlueCenterPrizeCard({
+    required this.iconAsset,
+    required this.amount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      height: 70,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(.10),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // монетка
+            Image.asset(
+              'assets/images/resources/coin.png',
+              width: 28,
+              height: 28,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 8),
+            // 1000
+            Text(
+              '$amount',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: theme.colorScheme.onSurface,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 class _RewardCard extends StatelessWidget {
   final Widget leftWidget;
   final String title;
@@ -343,11 +402,17 @@ class _RewardsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Expanded(child: _BlueCenterCard(title: 'Награда')),
+        const Expanded(
+          child: _BlueCenterPrizeCard(
+            iconAsset: 'assets/images/resources/coin.png',
+            amount: 1000,
+          ),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: _RewardCard(
-            leftWidget: const Icon(Icons.trending_up, size: 38, color: Colors.white),
+            leftWidget:
+            const Icon(Icons.trending_up, size: 38, color: Colors.white),
             title: rightTitle,
           ),
         ),
@@ -390,7 +455,7 @@ class _ScrollableTwoLineTitle extends StatelessWidget {
               physics: const ClampingScrollPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  // важно ограничить ширину, чтобы текст корректно переносился
+                  // ограничиваем ширину, чтобы текст корректно переносился
                   maxWidth: constraints.maxWidth,
                 ),
                 child: Text(
@@ -406,4 +471,3 @@ class _ScrollableTwoLineTitle extends StatelessWidget {
     );
   }
 }
-
