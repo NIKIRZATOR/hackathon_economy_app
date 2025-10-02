@@ -1,6 +1,5 @@
 // lib/features/city_map/screens/city_map_screen.dart
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:math';
 import 'dart:ui' as ui;
@@ -9,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
 import 'package:hackathon_economy_app/features/resource/model/resource_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vector_math/vector_math_64.dart' as v_math;
 
 import 'package:hackathon_economy_app/features/top_bar/city_top_bar.dart';
@@ -18,7 +16,6 @@ import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 import '../../../app/repository/auth_repository.dart';
-import '../../../app/services/api_user_buildings.dart';
 import '../../building_types/building_inventory/passive_inventory_building.dart';
 import '../../building_types/building_inventory/read_building_type_in_out.dart';
 import '../../building_types/building_inventory/recipe_inventory_building.dart';
@@ -31,6 +28,9 @@ import '../../building_types/repo/building_type_repository.dart';
 
 import '../../../app/models/user_model.dart';
 import '../../shop_widget/services/purchase_service.dart';
+import '../../tasks/service/level_cache.dart';
+import '../../tasks/repo/read_write_user_level_xp.dart';
+import '../../tasks/model/user_events.dart';
 import '../../user_buildings/repository/user_building_repository.dart';
 import '../../user_resource/model/user_resource_model.dart';
 import '../../user_resource/repo/user_resource_repository.dart';
@@ -175,11 +175,22 @@ class _CityMapScreenState extends State<CityMapScreen>
       }
     }
     setState(() => _user = effective);
+    _playerLevel = _user?.userLvl ?? 1;
 
     // загрузка инвентаря пользователя после авторизации
     final uid = _user?.userId;
     if (uid != null) {
+      // подгрузим requiredXp для текущего уровня
+      final lvl = _user?.userLvl ?? 1;
+      final info = await LevelsCache.I.levelInfo(lvl);
+      if (mounted) setState(() => _requiredXpUi = info.requiredXp);
+
+      // загрузка инвентаря
       await _loadInventory(uid);
+
+      // пинг значений XP/уровня -> топбар сразу верно отрисует прогресс и уровень
+      await UserService.I.pingXpLevel();
+
       _maybeStartIncome();
     }
   }
@@ -215,6 +226,8 @@ class _CityMapScreenState extends State<CityMapScreen>
     });
   }
 
+  late final StreamSubscription _coinsSub;
+
   @override
   void initState() {
     super.initState();
@@ -223,10 +236,26 @@ class _CityMapScreenState extends State<CityMapScreen>
     AudioManager().playMusic('background.mp3');
     mapInit();
     _initUser();
+    UserEvents.I.xpLevelStream.listen((v) {
+      if (!mounted) return;
+      setState(() {
+        _playerLevel   = v.level;
+        _requiredXpUi  = v.required; // у тебя это уже есть для топбара
+      });
+    });
+    _coinsSub = UserEvents.I.coinsDeltaStream.listen((delta) {
+      if (!mounted) return;
+      setState(() {
+        _coins = (_coins + delta).clamp(0, 1<<31);
+      });
+      // анимация "+X"
+      _coinsDeltaStream.add(delta.toDouble());
+    });
   }
 
   @override
   void dispose() {
+    _coinsSub.cancel();
     _coinsDeltaStream.close();
     WidgetsBinding.instance.removeObserver(this);
     _stopPassiveIncomeTicker(); // СТОП ТИКЕР ПАССИВНЫХ МОНЕТ
@@ -281,6 +310,8 @@ class _CityMapScreenState extends State<CityMapScreen>
                   cityTitle: cityName,
                   screenHeight: targetH,
                   screenWidth: targetW,
+                  xpLevelStream: UserEvents.I.xpLevelStream,
+                  requiredXp: _requiredXpUi,
                 ),
               ),
               Positioned(
@@ -291,7 +322,7 @@ class _CityMapScreenState extends State<CityMapScreen>
                   height: targetH,
                   wight: targetW,
                   onBuyBuildingType: _spawnFromTypeAndEnterMove,
-                  userLevel: userLvl,
+                  userLevel: _playerLevel,
                 ),
               ),
             ],

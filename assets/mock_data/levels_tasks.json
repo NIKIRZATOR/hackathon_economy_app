@@ -3,7 +3,7 @@
     {
       "level": 1,
       "requiredXp": 1250,
-      "reward": { "coins": 300 },
+      "reward": { "coins": 10 },
       "tasks": [
         {
           "id": "L1_1",
@@ -40,11 +40,11 @@
     {
       "level": 2,
       "requiredXp": 1750,
-      "reward": { "coins": 400 },
+      "reward": { "coins": 20 },
       "tasks": [
         {
           "id": "L2_1",
-          "title": "Накопить монеты, полученные за ап уровня",
+          "title": "Накопить 400 монет",
           "type": "save_coins",
           "xp": 250
         },
@@ -89,12 +89,12 @@
     {
       "level": 3,
       "requiredXp": 1750,
-      "reward": { "coins": 500 },
+      "reward": { "coins": 30 },
       "tasks": [
         {
           "id": "L3_1",
-          "title": "Построить статую",
-          "type": "build",
+          "title": "Накопить 600 монет",
+          "type": "save_coins",
           "xp": 250
         },
         {
@@ -138,7 +138,7 @@
     {
       "level": 4,
       "requiredXp": 1500,
-      "reward": { "coins": 600 },
+      "reward": { "coins": 40 },
       "tasks": [
         {
           "id": "L4_1",
@@ -154,8 +154,8 @@
         },
         {
           "id": "L4_3",
-          "title": "Положить деньги на счёт «Премиум»",
-          "type": "deposit",
+          "title": "Накопить 800 монет",
+          "type": "save_coins",
           "xp": 250
         },
         {

@@ -43,6 +43,7 @@ flutter:
     - assets/images/buildings/
     - assets/mock_data/
     - assets/images/almanac/
+    - assets/mock_data/levels_tasks.json
 
   fonts:
     - family: Halvar

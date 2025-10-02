@@ -61,7 +61,7 @@ class DialogWithCross extends StatelessWidget {
                     ],
                   ),
                 ),
-                content,
+                Expanded(child: content),
               ],
             ),
           ),
