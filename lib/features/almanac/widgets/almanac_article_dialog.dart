@@ -1,4 +1,6 @@
+// lib/features/almanac/widgets/almanac_article_dialog.dart
 import 'package:flutter/material.dart';
+
 import '../data/almanac_answers.dart';
 import '../model/almanac_answer.dart';
 import 'almanac_answer_dialog.dart';
@@ -26,9 +28,10 @@ class AlmanacArticleDialog extends StatelessWidget {
   void _openAnswerDialog(BuildContext context, {required bool userChoice}) {
     final AlmanacAnswer? data = kAlmanacAnswersByProduct[title];
 
-    // Если данных нет — подставим заглушку (чтобы ничего не падало).
+    // Если данных нет — подставим заглушку (ничего не падает).
     final bool isCorrect = (data?.correct ?? true) == userChoice;
-    final String explanation = data?.explanation ?? 'Пояснение будет добавлено.';
+    final String explanation =
+        data?.explanation ?? 'Пояснение будет добавлено.';
 
     showDialog(
       context: context,
@@ -36,13 +39,15 @@ class AlmanacArticleDialog extends StatelessWidget {
       barrierDismissible: true,
       builder: (ctx) {
         return Dialog(
-          insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          insetPadding:
+          const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
           backgroundColor: Colors.transparent,
           child: AlmanacAnswerDialog(
             isCorrect: isCorrect,
             explanation: explanation,
             screenH: screenH,
             screenW: screenW,
+            productTitle: title, // 👈 пробрасываем название продукта
           ),
         );
       },
@@ -133,7 +138,7 @@ class AlmanacArticleDialog extends StatelessWidget {
   }
 }
 
-/// Тело статьи: название, теория, вопрос (с «красной строки»).
+/// Тело статьи
 class _ArticleBody extends StatelessWidget {
   final String title;
   final String theory;
@@ -151,7 +156,6 @@ class _ArticleBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Название продукта
         Text(
           title,
           textAlign: TextAlign.center,
@@ -162,8 +166,6 @@ class _ArticleBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-
-        // Теория
         Text(
           theory,
           style: TextStyle(
@@ -174,8 +176,6 @@ class _ArticleBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-
-        // Вопрос (с «красной строки»)
         Text(
           '   $question',
           style: TextStyle(
@@ -190,7 +190,7 @@ class _ArticleBody extends StatelessWidget {
   }
 }
 
-/// Розовая большая таблетка-кнопка
+/// Кнопка (розовая таблетка)
 class _PinkPillButton extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
@@ -240,5 +240,7 @@ class _PinkPillButton extends StatelessWidget {
 class _NoScrollbar extends ScrollBehavior {
   const _NoScrollbar();
   @override
-  Widget buildScrollbar(BuildContext context, Widget child, ScrollableDetails details) => child;
+  Widget buildScrollbar(
+      BuildContext context, Widget child, ScrollableDetails details) =>
+      child;
 }
