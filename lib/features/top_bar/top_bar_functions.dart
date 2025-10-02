@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
+import 'package:hackathon_economy_app/core/ui/DialogWithCross.dart';
 import 'package:hackathon_economy_app/features/profile/profile_dialog.dart';
+import 'package:hackathon_economy_app/features/profile/bank_cards/cards_list.dart';
 
 import '../../app/sync/sync_service.dart';
 
-// открыть профиль
 Future<void> openLevelInfo(
     BuildContext context, {
       required int userId,
@@ -19,24 +20,35 @@ Future<void> openLevelInfo(
   final city = (cityTitle == null || cityTitle.trim().isEmpty) ? '—' : cityTitle;
 
   await showDialogWithSound(
-    context: context,
-    barrierDismissible: true,
-    builder: (_) => ProfileDialog(
-      username: name,
-      cityTitle: city,
-      level: level,
-      maxWidthHint: hostWidth,    // ограничим ширину рамкой телефона
-      maxHeightHint: hostHeight,  // высоту
-      onOpenMapInfo: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Открыть раздел: «Всё о карте»')),
-        );
-      },
-    ),
-  );
+  context: context,
+  barrierDismissible: true,
+  builder: (_) => ProfileDialog(
+    username: name,
+    cityTitle: city,
+    level: level,
+      maxWidthHint: hostWidth, 
+      maxHeightHint: hostHeight,  
+    onOpenCardInfo: (ctx) async {
+
+      await showDialogWithSound(
+        context: ctx,
+        barrierDismissible: true,
+        builder: (_) => DialogWithCross(
+          screenHeight: (hostHeight ?? MediaQuery.of(ctx).size.height),
+          screenWidth: (hostWidth  ?? MediaQuery.of(ctx).size.width),
+          title: 'Мои Карты',
+          content: SizedBox(
+            height: (hostHeight ?? MediaQuery.of(ctx).size.height) * 0.7 - 20,
+            width: hostWidth,
+            child: CardsList(level: level),
+          ),
+        ),
+      );
+    },
+  ),
+);
 }
 
-/// Открыть настройки (без изменений)
 Future<void> openSettings(BuildContext context, {required int userId}) async {
   final audio = AudioManager();
   double musicVol = audio.musicVolume;
@@ -64,18 +76,18 @@ Future<void> openSettings(BuildContext context, {required int userId}) async {
                     String tip;
                     switch (st) {
                       case SyncStatus.syncing:
-                        color = theme.colorScheme.outline;        // жёлтый — идёт синк
+                        color = Colors.amber;
                         icon = Icons.sync;
                         tip = 'Синхронизация…';
                         break;
                       case SyncStatus.error:
-                        color = Colors.red;          // красный — ошибка
+                        color = Colors.red;
                         icon = Icons.error_outline;
                         tip = 'Ошибка синхронизации';
                         break;
                       case SyncStatus.idle:
                       default:
-                        color = theme.colorScheme.outline;        // зелёный — всё ок или простой
+                        color = theme.colorScheme.outline;
                         icon = Icons.check_circle;
                         tip = 'Синхронизация завершена';
                     }
