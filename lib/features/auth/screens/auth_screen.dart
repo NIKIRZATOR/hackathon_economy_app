@@ -23,9 +23,9 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isLogin = true;
   bool _loading = false;
 
-  final _userCtrl = TextEditingController(text: 'test');
-  final _passCtrl = TextEditingController(text: 'test');
-  final _cityCtrl = TextEditingController(text: 'MyCity');
+  final _userCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+  final _cityCtrl = TextEditingController();
 
   final _inRepo = BuildingTypeInputRepository();
   final _outRepo = BuildingTypeOutputRepository();
@@ -56,7 +56,7 @@ class _AuthScreenState extends State<AuthScreen> {
       await warmUp();
 
       //  ПЕРИОДИЧЕСКАЯ СИНХРОНИЗАЦИЮ
-      // SyncService.I.start(userId: user.userId!);
+       SyncService.I.start(userId: user.userId!);
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(

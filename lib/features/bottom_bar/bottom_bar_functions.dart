@@ -6,11 +6,8 @@ import '../building_types/model/building_type_model.dart';
 import '../building_types/repo/building_type_repository.dart';
 import '../shop_widget/building_shop_dialog.dart';
 
-import '../tasks/model/task_model.dart';
-import '../tasks/repo/mock_tasks_repository.dart';
-import '../tasks/widgets/tasks_dialog.dart';
-import 'package:hackathon_economy_app/features/almanac/widgets/almanac_dialog.dart';
-
+import '../tasks/model/user_events.dart';
+import '../tasks/widgets/task_dialog_loader.dart';
 import 'package:hackathon_economy_app/features/almanac/widgets/almanac_dialog.dart';
 
 import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
@@ -19,41 +16,21 @@ import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
 Future<void> openTasks(
   BuildContext context,
   double height,
-  double wight,
+  double width,
 ) async {
-  // показ лоадера, пока загружается список заданий
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => const Center(child: CircularProgressIndicator()),
-  );
-
   try {
-    // Подтягиваем (пока что) мок-данные
-    final repo = MockTasksRepository();
-    final List<GameTask> tasks = await repo.loadAll();
-
-    // закрываем лоадер
-    final nav = Navigator.of(context, rootNavigator: true);
-    if (nav.canPop()) nav.pop();
-
-    showDialogWithSound<void>(
+    await showDialogWithSound<void>(
       context: context,
-      builder: (context) {
+      builder: (_) {
         return DialogWithCross(
           screenHeight: height,
-          screenWidth: wight,
+          screenWidth: width,
           title: 'Задания',
-          content: TasksDialog(tasks: tasks),
+          content: TasksDialogLoader(key: UniqueKey()),
         );
       },
     );
   } catch (e) {
-    // На всякий случай закрыть лоадер, если он открыт
-    final nav = Navigator.of(context, rootNavigator: true);
-    if (nav.canPop()) nav.pop();
-
-    // Сообщение об ошибке
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text('Не удалось открыть задания: $e')));
@@ -81,22 +58,23 @@ Future<BuildingType?> openShop(
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();
 
-  return showDialogWithSound<BuildingType>(
-    context: context,
-    builder: (context) {
-      return DialogWithCross(
-        screenHeight: screenHeight,
-        screenWidth: screenWight,
-        title: 'Магазин',
-        content: BuildingShopDialog(
-          buildingTypes: types,
+    return showDialogWithSound<BuildingType>(
+      context: context,
+      builder: (context) {
+        return DialogWithCross(
           screenHeight: screenHeight,
-          screenWight: screenWight,
-          playerLevel: userLevel,
-        ),
-      );
-    },
-  );
+          screenWidth: screenWight,
+          title: 'Магазин',
+          content: BuildingShopDialog(
+            buildingTypes: types,
+            screenHeight: screenHeight,
+            screenWight: screenWight,
+            playerLevel: userLevel,
+            xpLevelStream: UserEvents.I.xpLevelStream,
+          ),
+        );
+      },
+    );
   } catch (e) {
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();
@@ -119,10 +97,7 @@ Future<void> openAlmanac(BuildContext context) async {
       screenHeight: targetH,
       screenWidth: targetW,
       title: 'Альманах',
-      content: AlmanacDialog(
-        targetH: targetH,
-        targetW: targetW,
-      ),
+      content: AlmanacDialog(targetH: targetH, targetW: targetW),
     ),
   );
 }
