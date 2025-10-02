@@ -7,6 +7,8 @@ import '../../../app/sync/sync_service.dart';
 import '../../../core/layout/app_view_size.dart';
 import '../../building_types/repo/building_type_input_repository.dart';
 import '../../building_types/repo/building_type_output_repository.dart';
+import 'package:hackathon_economy_app/features/tutorial/service/tutorial_service.dart';
+
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -69,6 +71,17 @@ class _AuthScreenState extends State<AuthScreen> {
       if (mounted) setState(() => _loading = false);
     }
   }
+
+  @override
+  void initState() {
+    super.initState();
+    // Показать приветственное обучение сразу после первого кадра
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      TutorialService.I.showWelcomeTutorial(context);
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {

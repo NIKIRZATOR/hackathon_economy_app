@@ -7,6 +7,10 @@ import '../../core/ui/xp_progress_oval.dart';
 import '../tasks/model/user_events.dart';
 import 'top_bar_functions.dart';
 
+// Ключи для обзора интерфейса (профиль и настройки)
+final profileButtonKey = GlobalKey();
+final settingsButtonKey = GlobalKey();
+
 class CityTopBar extends StatelessWidget {
   const CityTopBar({
     super.key,
@@ -39,65 +43,72 @@ class CityTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    // если стрима нет — рисуем по старым пропсам
-    final content = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Row(
-          children: [
-            StarButton(
-              text: '$userLvl',
-              assetPath: 'assets/images/svg/star.svg',
-              size: 70,
-              onPressed: () => openLevelInfo(
-                context,
-                userId: userId,
-                level: userLvl,
-                username: user?.username,
-                cityTitle: cityTitle,
-                hostWidth: screenWidth,
-                hostHeight: screenHeight,
-              ),
-            ),
-            const SizedBox(width: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  XpProgressOval(
-                    currentXP: xpCount,
-                    totalNeedXP: requiredXp,
-                    iconPath: 'assets/images/resources/star.png',
+    // Базовый контент без стрима (используем пропсы) — с ключами для туториала
+    Widget buildStatic() {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(
+            children: [
+              KeyedSubtree(
+                key: profileButtonKey,
+                child: StarButton(
+                  text: '$userLvl',
+                  assetPath: 'assets/images/svg/star.svg',
+                  size: 70,
+                  onPressed: () => openLevelInfo(
+                    context,
+                    userId: userId,
+                    level: userLvl,
+                    username: user?.username,
+                    cityTitle: cityTitle,
+                    hostWidth: screenWidth,
+                    hostHeight: screenHeight,
                   ),
-                  CoinsOval(
-                    amount: coinsCount,
-                    iconPath: 'assets/images/resources/coin.png',
-                    deltaStream: coinsDeltaStream,
-                  )
-                ],
+                ),
               ),
+              const SizedBox(width: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    XpProgressOval(
+                      currentXP: xpCount,
+                      totalNeedXP: requiredXp,
+                      iconPath: 'assets/images/resources/star.png',
+                    ),
+                    CoinsOval(
+                      amount: coinsCount,
+                      iconPath: 'assets/images/resources/coin.png',
+                      deltaStream: coinsDeltaStream,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          KeyedSubtree(
+            key: settingsButtonKey,
+            child: MainIconButton(
+              icon: Icons.settings,
+              onPressed: () => openSettings(context, userId: userId),
             ),
-          ],
-        ),
-        MainIconButton(
-          icon: Icons.settings,
-          onPressed: () => openSettings(context, userId: userId),
-        ),
-      ],
-    );
+          ),
+        ],
+      );
+    }
 
     if (xpLevelStream == null) {
       return Padding(
         padding: const EdgeInsets.only(top: 22, left: 60, right: 60),
-        child: SizedBox(height: screenHeight * 0.09 + 10, child: content),
+        child: SizedBox(height: screenHeight * 0.09 + 10, child: buildStatic()),
       );
     }
 
-    //  перекрашиваем только значения уровня/опыта
+    // Динамический режим со стримом уровня/XP — значения берём из события
     return Padding(
       padding: const EdgeInsets.only(top: 22, left: 60, right: 60),
       child: SizedBox(
@@ -113,18 +124,21 @@ class CityTopBar extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    StarButton(
-                      text: '${v.level}',
-                      assetPath: 'assets/images/svg/star.svg',
-                      size: 70,
-                      onPressed: () => openLevelInfo(
-                        context,
-                        userId: userId,
-                        level: v.level,
-                        username: user?.username,
-                        cityTitle: cityTitle,
-                        hostWidth: screenWidth,
-                        hostHeight: screenHeight,
+                    KeyedSubtree(
+                      key: profileButtonKey,
+                      child: StarButton(
+                        text: '${v.level}',
+                        assetPath: 'assets/images/svg/star.svg',
+                        size: 70,
+                        onPressed: () => openLevelInfo(
+                          context,
+                          userId: userId,
+                          level: v.level,
+                          username: user?.username,
+                          cityTitle: cityTitle,
+                          hostWidth: screenWidth,
+                          hostHeight: screenHeight,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 20),
@@ -143,15 +157,18 @@ class CityTopBar extends StatelessWidget {
                             amount: coinsCount,
                             iconPath: 'assets/images/resources/coin.png',
                             deltaStream: coinsDeltaStream,
-                          )
+                          ),
                         ],
                       ),
                     ),
                   ],
                 ),
-                MainIconButton(
-                  icon: Icons.settings,
-                  onPressed: () => openSettings(context, userId: userId),
+                KeyedSubtree(
+                  key: settingsButtonKey,
+                  child: MainIconButton(
+                    icon: Icons.settings,
+                    onPressed: () => openSettings(context, userId: userId),
+                  ),
                 ),
               ],
             );

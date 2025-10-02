@@ -45,6 +45,9 @@ import '../services/static_city_layout.dart';
 import '../services/user_city_storage.dart';
 import '../services/user_inventory_storage.dart';
 
+// 🔽 импорт сервиса обучения
+import '../../tutorial/service/tutorial_service.dart';
+
 part 'parts/map_constants.dart';
 part 'parts/map_passive_income_coins.dart';
 part 'parts/load_build_in_out_put.dart';
@@ -236,20 +239,46 @@ class _CityMapScreenState extends State<CityMapScreen>
     AudioManager().playMusic('background.mp3');
     mapInit();
     _initUser();
-    UserEvents.I.xpLevelStream.listen((v) {
-      if (!mounted) return;
-      setState(() {
-        _playerLevel   = v.level;
-        _requiredXpUi  = v.required; // у тебя это уже есть для топбара
-      });
+@override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addObserver(this);
+  AudioManager().setMusicVolume(0.3);
+  AudioManager().playMusic('background.mp3');
+  mapInit();
+  _initUser();
+
+  // Показ обзора интерфейса после первого кадра (из misha_login_page)
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (!mounted) return;
+    TutorialService.I.showCityUiTour(
+      context,
+      profileKey: profileButtonKey,
+      settingsKey: settingsButtonKey,
+      tasksKey: tasksButtonKey,
+      shopKey: shopButtonKey,
+      almanacKey: almanacButtonKey,
+    );
+  });
+
+  // Подписки на события уровня и монет (из main)
+  UserEvents.I.xpLevelStream.listen((v) {
+    if (!mounted) return;
+    setState(() {
+      _playerLevel  = v.level;
+      _requiredXpUi = v.required;
     });
-    _coinsSub = UserEvents.I.coinsDeltaStream.listen((delta) {
-      if (!mounted) return;
-      setState(() {
-        _coins = (_coins + delta).clamp(0, 1<<31);
-      });
-      // анимация "+X"
-      _coinsDeltaStream.add(delta.toDouble());
+  });
+
+  _coinsSub = UserEvents.I.coinsDeltaStream.listen((delta) {
+    if (!mounted) return;
+    setState(() {
+      _coins = (_coins + delta).clamp(0, 1 << 31);
+    });
+    // анимация "+X"
+    _coinsDeltaStream.add(delta.toDouble());
+  });
+}
     });
   }
 
@@ -291,42 +320,43 @@ class _CityMapScreenState extends State<CityMapScreen>
         width: targetW,
         height: targetH,
         child: Scaffold(
-          body: Stack(
-            children: [
-              Positioned.fill(
-                child: buildMapCanvas(),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: CityTopBar(
-                  user: _user,
-                  userId: userId,
-                  userLvl: userLvl,
-                  xpCount: xpCount,
-                  coinsCount: _coins,
-                  coinsDeltaStream: _coinsDeltaStream.stream,
-                  cityTitle: cityName,
-                  screenHeight: targetH,
-                  screenWidth: targetW,
-                  xpLevelStream: UserEvents.I.xpLevelStream,
-                  requiredXp: _requiredXpUi,
+            body: Stack(
+  children: [
+    Positioned.fill(
+      child: buildMapCanvas(),
+    ),
+    Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: CityTopBar(
+        user: _user,
+        userId: userId,
+        userLvl: userLvl,
+        xpCount: xpCount,
+        coinsCount: _coins,
+        coinsDeltaStream: _coinsDeltaStream.stream,
+        cityTitle: cityName,
+        screenHeight: targetH,
+        screenWidth: targetW,
+        // расширенные пропсы из main
+        xpLevelStream: UserEvents.I.xpLevelStream,
+        requiredXp: _requiredXpUi,
+      ),
+    ),
+    Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: CityMapBottomBar(
+        height: targetH,
+        wight: targetW,
+        onBuyBuildingType: _spawnFromTypeAndEnterMove,
+        // актуальный уровень игрока из стрима
+        userLevel: _playerLevel,
                 ),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: CityMapBottomBar(
-                  height: targetH,
-                  wight: targetW,
-                  onBuyBuildingType: _spawnFromTypeAndEnterMove,
-                  userLevel: _playerLevel,
-                ),
-              ),
-            ],
-          )
+              ],
+            )
         ),
       ),
     );
