@@ -3,7 +3,7 @@
     {
       "level": 1,
       "requiredXp": 1250,
-      "reward": { "coins": 300 },
+      "reward": { "coins": 10 },
       "tasks": [
         {
           "id": "L1_1",
@@ -40,7 +40,7 @@
     {
       "level": 2,
       "requiredXp": 1750,
-      "reward": { "coins": 400 },
+      "reward": { "coins": 20 },
       "tasks": [
         {
           "id": "L2_1",
@@ -89,7 +89,7 @@
     {
       "level": 3,
       "requiredXp": 1750,
-      "reward": { "coins": 500 },
+      "reward": { "coins": 30 },
       "tasks": [
         {
           "id": "L3_1",
@@ -138,7 +138,7 @@
     {
       "level": 4,
       "requiredXp": 1500,
-      "reward": { "coins": 600 },
+      "reward": { "coins": 40 },
       "tasks": [
         {
           "id": "L4_1",

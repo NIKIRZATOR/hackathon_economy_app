@@ -226,6 +226,8 @@ class _CityMapScreenState extends State<CityMapScreen>
     });
   }
 
+  late final StreamSubscription _coinsSub;
+
   @override
   void initState() {
     super.initState();
@@ -241,10 +243,19 @@ class _CityMapScreenState extends State<CityMapScreen>
         _requiredXpUi  = v.required; // у тебя это уже есть для топбара
       });
     });
+    _coinsSub = UserEvents.I.coinsDeltaStream.listen((delta) {
+      if (!mounted) return;
+      setState(() {
+        _coins = (_coins + delta).clamp(0, 1<<31);
+      });
+      // анимация "+X"
+      _coinsDeltaStream.add(delta.toDouble());
+    });
   }
 
   @override
   void dispose() {
+    _coinsSub.cancel();
     _coinsDeltaStream.close();
     WidgetsBinding.instance.removeObserver(this);
     _stopPassiveIncomeTicker(); // СТОП ТИКЕР ПАССИВНЫХ МОНЕТ
