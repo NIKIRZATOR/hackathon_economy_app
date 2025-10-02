@@ -46,7 +46,7 @@ class UserCityStorage {
     }
   }
 
-  // локально создаем запись здания с state = 'preview' (для режима размещения).
+  // локально создаем запись здания с state = 'preview'
   Future<UserBuildingModel> addLocalBuilding({
     required int userId,
     required int buildingTypeId,
@@ -75,7 +75,9 @@ class UserCityStorage {
   Future<void> upsertSmart(int userId, UserBuildingModel ub) async {
     final items = await load(userId);
 
-    int idx = items.indexWhere((e) => e.idUserBuilding == ub.idUserBuilding);
+    int idx = items.indexWhere(
+          (e) => e.idUserBuilding == ub.idUserBuilding && e.idUser == ub.idUser,
+    );
     if (idx < 0 && ub.clientId != null) {
       idx = items.indexWhere((e) => e.clientId == ub.clientId);
     }
@@ -86,5 +88,57 @@ class UserCityStorage {
       items.add(ub);
     }
     await saveAll(userId, items);
+  }
+
+  // удаление по всем user_city_...
+  /// return true, если что-то удалили
+  Future<bool> deleteEverywhere({
+    int? idUserBuilding,
+    String? clientId,
+    int? x,
+    int? y,
+    int? idBuildingType,
+  }) async {
+    final sp = await SharedPreferences.getInstance();
+    final keys = sp.getKeys().where((k) => k.startsWith('user_city_'));
+
+    bool removedAnything = false;
+
+    for (final key in keys) {
+      final raw = sp.getString(key);
+      if (raw == null || raw.isEmpty) continue;
+
+      final List data = jsonDecode(raw);
+      final items = data
+          .map((e) => UserBuildingModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      final before = items.length;
+
+      items.removeWhere((e) {
+        final byId = (idUserBuilding != null && idUserBuilding > 0)
+            ? e.idUserBuilding == idUserBuilding
+            : false;
+
+        final byClient = (clientId != null && clientId.isNotEmpty)
+            ? e.clientId == clientId || e.clientId == clientId
+            : false;
+
+        final byCoordsType = (x != null && y != null && idBuildingType != null)
+            ? (e.x == x && e.y == y && e.idBuildingType == idBuildingType)
+            : false;
+
+        return byId || byClient || byCoordsType;
+      });
+
+      if (items.length != before) {
+        // перезаписываем этот ключ
+        final newRaw = jsonEncode(items.map((e) => e.toJson()).toList());
+        await sp.setString(key, newRaw);
+        removedAnything = true;
+      }
+    }
+
+    return removedAnything;
   }
 }

@@ -18,6 +18,7 @@ import 'package:hackathon_economy_app/core/utils/show_dialog_with_sound.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 import '../../../app/repository/auth_repository.dart';
+import '../../../app/services/api_user_buildings.dart';
 import '../../building_types/building_inventory/passive_inventory_building.dart';
 import '../../building_types/building_inventory/read_building_type_in_out.dart';
 import '../../building_types/building_inventory/recipe_inventory_building.dart';
@@ -192,6 +193,26 @@ class _CityMapScreenState extends State<CityMapScreen>
     if (_cityReady && _ioReady) {
       _rearmPassiveIncomeTicker(); // проверит и запустит
     }
+  }
+
+  final _cityStorage = UserCityStorage();
+
+  Future<void> _removeBuildingEverywhere(Building b) async {
+    // 1 -  удаление из всех user_city_*
+    final removed = await _cityStorage.deleteEverywhere(
+      idUserBuilding: b.idUserBuilding,
+      clientId: b.clientId,
+      x: b.x,
+      y: b.y,
+      idBuildingType: b.idBuildingType,
+    );
+    debugPrint('[remove] deleteEverywhere removed=$removed '
+        '(id=${b.idUserBuilding}, clientId=${b.clientId}, x=${b.x}, y=${b.y}, type=${b.idBuildingType})');
+    // 2 - убрать с карты
+    doSetState(() {
+      buildings.removeWhere((e) => e.id == b.id);
+      _paintVersion++;
+    });
   }
 
   @override

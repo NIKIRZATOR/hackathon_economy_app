@@ -14,13 +14,10 @@ extension _OpenBuildCardFromMapDialog on _CityMapScreenState {
       child: const Text('Переместить'),
     ),
     TextButton(
-      onPressed: () {
+      onPressed: () async {
         AudioManager().playSfx('destroy.mp3');
-        doSetState(() {
-          buildings.removeWhere((e) => e.id == b.id);
-          _paintVersion++;
-        });
-        Navigator.of(ctx).pop();
+        await _removeBuildingEverywhere(b);
+        if (ctx.mounted) Navigator.of(ctx).pop();
       },
       child: const Text('Снести', style: TextStyle(color: Colors.red)),
     ),
