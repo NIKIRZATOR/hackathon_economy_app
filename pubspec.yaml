@@ -41,6 +41,7 @@ flutter:
     - assets/audio/sfx/
     - assets/images/buildings/
     - assets/mock_data/
+    - assets/images/almanac/
 
   fonts:
     - family: Halvar
