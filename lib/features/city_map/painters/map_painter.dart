@@ -123,7 +123,7 @@ class MapPainter extends CustomPainter {
         Paint()
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2
-          ..color = b.border,
+          ..color = Colors.transparent,
       );
     }
 
