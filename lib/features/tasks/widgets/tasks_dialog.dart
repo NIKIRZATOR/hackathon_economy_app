@@ -5,6 +5,9 @@ import '../../../app/models/user_model.dart';
 import '../model/task_model.dart';
 import '../repo/level_task_repository.dart';
 
+import '../repo/read_write_user_level_xp.dart';
+import '../repo/task_completion_service.dart';
+
 Future<void> showTasksDialog(BuildContext context) async {
   await showDialog(
     context: context,
@@ -17,7 +20,7 @@ class TasksDialog extends StatefulWidget {
   final LevelInfo level;
   final UserModel? user;
 
-  const TasksDialog({required this.level, required this.user});
+  const TasksDialog({super.key, required this.level, required this.user});
 
   @override
   State<TasksDialog> createState() => _TasksDialogState();
@@ -30,6 +33,54 @@ class _TasksDialogState extends State<TasksDialog> {
   void initState() {
     super.initState();
     _completed = { for (final t in widget.level.tasks) t.id: false };
+    _bootstrap();
+  }
+
+  Future<void> _bootstrap() async {
+    // уже выполненные задачи
+    final uLite = await UserService.I.readUserLite();
+    if (uLite != null) {
+      final done = await TaskCompletionService.I.loadDone(uLite.id);
+      setState(() {
+        for (final t in widget.level.tasks) {
+          _completed[t.id] = done.contains(t.id);
+        }
+      });
+    }
+
+    // пинг в топбар (актуальные level/xp/requiredXp подтянутся из levels_tasks.json)
+    await UserService.I.pingXpLevel();
+  }
+
+  Future<void> _toggleTask(LevelTask t, bool? value) async {
+    // задачи одноразовые — запрещаем снимать галку
+    if (value != true) return;
+
+    final uLite = await UserService.I.readUserLite();
+    if (uLite == null) return;
+
+    // бизнес-валидация (build/coins и т.д.)
+    final ok = await TaskCompletionService.I.canComplete(t, uLite.id);
+    if (!ok) {
+      // тут можно показать Snackbar/Toast "условие не выполнено"
+      return;
+    }
+
+    // не начисляем XP повторно
+    final done = await TaskCompletionService.I.loadDone(uLite.id);
+    if (done.contains(t.id)) {
+      setState(() => _completed[t.id] = true);
+      return;
+    }
+
+    // фиксируем выполнение
+    done.add(t.id);
+    await TaskCompletionService.I.saveDone(uLite.id, done);
+    setState(() => _completed[t.id] = true);
+
+    // начисляем XP (+возможный ап уровня). requiredXp сервис возьмёт сам из levels_tasks.json
+    await UserService.I.addXpAndMaybeLevelUp(t.xp);
+    // топбар обновится через стрим событий
   }
 
   @override
@@ -93,7 +144,7 @@ class _TasksDialogState extends State<TasksDialog> {
                               scale: 0.9,
                               child: Checkbox(
                                 value: done,
-                                onChanged: (v) => setState(() => _completed[t.id] = v ?? false),
+                                onChanged: done ? null : (v) => _toggleTask(t, v),
                                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 side: const BorderSide(color: Colors.white, width: 1.6),
                                 checkColor: Colors.white,

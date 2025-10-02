@@ -6,6 +6,7 @@ import '../building_types/model/building_type_model.dart';
 import '../building_types/repo/building_type_repository.dart';
 import '../shop_widget/building_shop_dialog.dart';
 
+import '../tasks/model/user_events.dart';
 import '../tasks/widgets/task_dialog_loader.dart';
 import 'package:hackathon_economy_app/features/almanac/widgets/almanac_dialog.dart';
 
@@ -69,6 +70,7 @@ Future<BuildingType?> openShop(
             screenHeight: screenHeight,
             screenWight: screenWight,
             playerLevel: userLevel,
+            xpLevelStream: UserEvents.I.xpLevelStream,
           ),
         );
       },
