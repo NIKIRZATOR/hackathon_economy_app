@@ -17,11 +17,13 @@ class PurchaseResult {
   });
 
   factory PurchaseResult.ok({
-    required UserBuildingModel building,
+    UserBuildingModel? building,
     required double newCoins,
-  }) => PurchaseResult._(ok: true, building: building, newCoins: newCoins);
+  }) =>
+      PurchaseResult._(ok: true, building: building, newCoins: newCoins);
 
-  factory PurchaseResult.fail(String message) => PurchaseResult._(ok: false, error: message);
+  factory PurchaseResult.fail(String message) =>
+      PurchaseResult._(ok: false, error: message);
 }
 
 class PurchaseService {
@@ -33,15 +35,12 @@ class PurchaseService {
     required this.city,
   });
 
-  // 1 - попытка списать монеты 'coin'
-  // 2 - создаём локально здание со state 'preview' для режима размещения
-  // 3 - если шаг 2 не сработал — откатываем монеты.
+  // СТАРЫЙ сценарий: сразу создаёт preview-здание в SP.
   Future<PurchaseResult> buyBuildingLocal({
     required int userId,
     required int buildingTypeId,
     required double costCoins,
   }) async {
-    // 1
     final spent = await inventory.trySpendByCode(
       userId: userId,
       code: 'coins',
@@ -49,11 +48,10 @@ class PurchaseService {
     );
     if (!spent) {
       return PurchaseResult.fail('Недостаточно монет.');
-    } else if (spent) {
+    } else {
       AudioManager().playSfx('cash_register.mp3');
     }
 
-    // 2
     try {
       final ub = await city.addLocalBuilding(
         userId: userId,
@@ -67,9 +65,31 @@ class PurchaseService {
       final newCoins = await inventory.getAmountByCodeSafe(userId, 'coins');
       return PurchaseResult.ok(building: ub, newCoins: newCoins);
     } catch (e) {
-      // 3
+      // откат монет при неудаче создания записи
       await inventory.addByCode(userId: userId, code: 'coins', delta: costCoins);
       return PurchaseResult.fail('Не удалось создать здание: $e');
     }
+  }
+
+  // только списываем монеты, здание в localStorage еще не пишем
+  Future<PurchaseResult> buyBuildingPreview({
+    required int userId,
+    required int buildingTypeId,
+    required double costCoins,
+  }) async {
+    final spent = await inventory.trySpendByCode(
+      userId: userId,
+      code: 'coins',
+      cost: costCoins,
+    );
+
+    if (!spent) {
+      return PurchaseResult.fail('Недостаточно монет.');
+    }
+
+    AudioManager().playSfx('cash_register.mp3');
+
+    final newCoins = await inventory.getAmountByCodeSafe(userId, 'coins');
+    return PurchaseResult.ok(newCoins: newCoins);
   }
 }
