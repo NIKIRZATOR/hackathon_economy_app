@@ -42,7 +42,7 @@ extension _CityMapStateMoveDrag on _CityMapScreenState {
       _paintVersion++;
 
       if (_pendingNewBuildingId == b.id && _pendingNewBuildingType != null) {
-        await _persistNewBuilding(b, _pendingNewBuildingType!);
+        await _finalizePlacementAndPersist(b);
         _pendingNewBuildingId = null;
         _pendingNewBuildingType = null;
       } else {
@@ -78,5 +78,30 @@ extension _CityMapStateMoveDrag on _CityMapScreenState {
       Rect.fromLTWH(cellX.toDouble(), cellY.toDouble(), b.w.toDouble(), b.h.toDouble()),
       valid,
     );
+  }
+
+  Future<void> _finalizePlacementAndPersist(Building b) async {
+    final uid = _user?.userId;
+    if (uid == null) return;
+
+    final ub = UserBuildingModel(
+      idUserBuilding: b.idUserBuilding ?? 0,
+      clientId: b.clientId ?? 'local_${DateTime.now().millisecondsSinceEpoch}',
+      idUser: uid,
+      idBuildingType: b.idBuildingType!,
+      x: b.x,
+      y: b.y,
+      currentLevel: b.level,
+      state: 'placed',
+      placedAt: DateTime.now().toUtc(),
+      lastUpgradeAt: null,
+    );
+
+    await _cityStorage.upsertSmart(uid, ub);
+
+    // запускаем тикер пассивного дохода
+    await _rearmPassiveIncomeTicker();
+    // и сразу считаем первый тик
+    await _onIncomeTick(uid);
   }
 }
