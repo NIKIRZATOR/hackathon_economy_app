@@ -9,9 +9,18 @@ import '../shop_widget/building_shop_dialog.dart';
 import '../tasks/model/task_model.dart';
 import '../tasks/repo/mock_tasks_repository.dart';
 import '../tasks/widgets/tasks_dialog.dart';
+import 'package:hackathon_economy_app/features/almanac/widgets/almanac_dialog.dart';
+
+import 'package:hackathon_economy_app/features/almanac/widgets/almanac_dialog.dart';
+
+import 'package:hackathon_economy_app/core/layout/app_view_size.dart';
 
 // открыть диалог "Задания"
-Future<void> openTasks(BuildContext context, double height, double wight) async {
+Future<void> openTasks(
+  BuildContext context,
+  double height,
+  double wight,
+) async {
   // показ лоадера, пока загружается список заданий
   showDialog(
     context: context,
@@ -32,7 +41,7 @@ Future<void> openTasks(BuildContext context, double height, double wight) async 
       context: context,
       builder: (context) {
         return DialogWithCross(
-          screenHeight: height, 
+          screenHeight: height,
           screenWidth: wight,
           title: 'Задания',
           content: TasksDialog(tasks: tasks),
@@ -45,19 +54,19 @@ Future<void> openTasks(BuildContext context, double height, double wight) async 
     if (nav.canPop()) nav.pop();
 
     // Сообщение об ошибке
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Не удалось открыть задания: $e')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Не удалось открыть задания: $e')));
   }
 }
 
 // Открыть диалог "Магазин"
 Future<BuildingType?> openShop(
-    BuildContext context,
-    double screenHeight,
-    double screenWight,
-    int userLevel,
-    ) async {
+  BuildContext context,
+  double screenHeight,
+  double screenWight,
+  int userLevel,
+) async {
   // Лоадер
   showDialog(
     context: context,
@@ -86,16 +95,29 @@ Future<BuildingType?> openShop(
   } catch (e) {
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Не удалось загрузить магазин: $e')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Не удалось загрузить магазин: $e')));
     return null;
   }
 }
 
-// Открыть "Альманах" (пока заглушка)
-void openAlmanac(BuildContext context) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text('Открыть Альманах')),
+Future<void> openAlmanac(BuildContext context) async {
+  final app = AppViewSize.of(context);
+
+  final targetW = (app.targetW - 12) + 20;
+  final targetH = app.targetH;
+
+  await showDialogWithSound<void>(
+    context: context,
+    builder: (ctx) => DialogWithCross(
+      screenHeight: targetH,
+      screenWidth: targetW,
+      title: 'Альманах',
+      content: AlmanacDialog(
+        targetH: targetH,
+        targetW: targetW,
+      ),
+    ),
   );
 }
