@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hackathon_economy_app/app/models/user_model.dart';
 import 'package:hackathon_economy_app/core/ui/MainIconButton.dart';
 import 'package:hackathon_economy_app/core/ui/StarButton.dart';
-import 'package:hackathon_economy_app/core/ui/OvalWithIcon.dart';
 import '../../core/ui/OvalFOrCoins.dart';
+import '../../core/ui/xp_progress_oval.dart';
 import 'top_bar_functions.dart';
 
 class CityTopBar extends StatelessWidget {
@@ -67,10 +67,9 @@ class CityTopBar extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      OvalWithIcon(
-                        current: xpCount,
-                        total: 1250,
-                        //ИЗМЕНИТЬ НА РЕАЛЬНЫЙ ОПЫТ, ТРЕБУЕМЫЙ ДЛЯ АПА ЛВЛА
+                      XpProgressOval(
+                        currentXP: xpCount,
+                        totalNeedXP: 1250,
                         iconPath: 'assets/images/resources/star.png',
                       ),
                       CoinsOval(

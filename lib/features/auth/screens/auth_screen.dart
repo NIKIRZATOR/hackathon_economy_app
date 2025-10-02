@@ -54,7 +54,7 @@ class _AuthScreenState extends State<AuthScreen> {
       await warmUp();
 
       //  ПЕРИОДИЧЕСКАЯ СИНХРОНИЗАЦИЮ
-      SyncService.I.start(userId: user.userId!);
+      // SyncService.I.start(userId: user.userId!);
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
