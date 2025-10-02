@@ -1,6 +1,7 @@
 import 'package:hackathon_economy_app/features/city_map/services/user_city_storage.dart';
 import 'package:hackathon_economy_app/features/city_map/services/user_inventory_storage.dart';
 import 'package:hackathon_economy_app/features/user_buildings/model/user_building.dart';
+import 'package:hackathon_economy_app/core/services/audio_manager.dart';
 
 class PurchaseResult {
   final bool ok;
@@ -48,6 +49,8 @@ class PurchaseService {
     );
     if (!spent) {
       return PurchaseResult.fail('Недостаточно монет.');
+    } else if (spent) {
+      AudioManager().playSfx('cash_register.mp3');
     }
 
     // 2

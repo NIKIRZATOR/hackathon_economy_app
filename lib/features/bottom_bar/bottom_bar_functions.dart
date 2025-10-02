@@ -72,17 +72,22 @@ Future<BuildingType?> openShop(
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();
 
-    // возвращаем Future из showDialog
-    return showDialogWithSound<BuildingType>(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => BuildingShopDialog(
-        buildingTypes: types,
+  return showDialogWithSound<BuildingType>(
+    context: context,
+    builder: (context) {
+      return DialogWithCross(
         screenHeight: screenHeight,
-        screenWight: screenWight,
-        playerLevel: userLevel,
-      ),
-    );
+        screenWidth: screenWight,
+        title: 'Магазин',
+        content: BuildingShopDialog(
+          buildingTypes: types,
+          screenHeight: screenHeight,
+          screenWight: screenWight,
+          playerLevel: userLevel,
+        ),
+      );
+    },
+  );
   } catch (e) {
     final nav = Navigator.of(context, rootNavigator: true);
     if (nav.canPop()) nav.pop();

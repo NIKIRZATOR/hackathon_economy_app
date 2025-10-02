@@ -18,6 +18,7 @@ class AppTheme {
       onBackground: AppColors.white,
       surface: AppColors.iris,
       onSurface: AppColors.white,
+      outline: AppColors.mint,
     );
     return ThemeData(
       useMaterial3: true,

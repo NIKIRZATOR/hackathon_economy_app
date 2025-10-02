@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hackathon_economy_app/core/services/audio_manager.dart';
+import 'package:hackathon_economy_app/core/ui/DialogWithCross.dart';
+import 'package:hackathon_economy_app/core/ui/MainTextButton.dart';
 import '../../building_types/model/building_type_model.dart';
 
 class BuildingTypeDetailsDialog extends StatelessWidget {
@@ -16,106 +18,176 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final w = (screenWight * 0.6).clamp(360, 720).toDouble();
-    final h = (screenHeight * 0.5).clamp(280, 560).toDouble();
+    final theme = Theme.of(context);
 
-    return Dialog(
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: (screenWight - w) / 2,
-        vertical: (screenHeight - h) / 2,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: SizedBox(
-        width: w,
-        height: h,
-        child: Column(
+    return DialogWithCross(
+      screenHeight: screenHeight,
+      screenWidth: screenWight,
+      title: bt.titleBuildingType,
+      content: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.background,
+          borderRadius: BorderRadius.circular(10),   
+        ),
+        padding: const EdgeInsets.fromLTRB(6, 6, 9, 9),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 8, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      bt.titleBuildingType,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  IconButton(
-                    tooltip: 'Закрыть',
-                    onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: AspectRatio(
-                        aspectRatio: 1,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade200,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.black.withValues(alpha: .1)),
+            Column(
+              children: [
+                bt.imageAsset != null
+                    ? ClipRect(
+                        child: Align(
+                          alignment: Alignment.center,
+                          heightFactor: 0.85,
+                          child: Image.asset(
+                            width: 135,
+                            bt.imageAsset!,
+                            fit: BoxFit.cover,
                           ),
-                          child: bt.imageAsset != null
-                              ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.asset(bt.imageAsset!, fit: BoxFit.cover),
-                          )
-                              : const Center(child: Icon(Icons.apartment, size: 48)),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 4,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: SingleChildScrollView(
-                              child: DefaultTextStyle(
-                                style: Theme.of(context).textTheme.bodyMedium!,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    if (bt.description != null) Text(bt.description!),
-                                    Text(
-                                      'Размер: ${bt.wSize}×${bt.hSize}\n'
-                                          'Макс. апгрейд: ${bt.maxUpgradeLvl}\n'
-                                          'Открывается на уровне: ${bt.unlockLevel}\n'
-                                          'Стоимость: ${bt.cost} р',
-                                    ),
-                                  ],
+                      )
+                    : const Center(child: Icon(Icons.apartment, size: 36)),
+                Text(
+                  'Размер: ${bt.wSize}×${bt.hSize}',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: theme.colorScheme.surface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(width: 8),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 50),
+                      child: 
+                        Container(
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surface,
+                            borderRadius: BorderRadius.circular(10),   
+                          ),
+                          padding: const EdgeInsets.all(7),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Производит:',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w400,
+                                  color: theme.colorScheme.onSurface,
                                 ),
                               ),
+                              const SizedBox(height: 4),
+                              Image.asset(
+                                'assets/images/resources/coin.png',
+                                width: 50,
+                                height: 50,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '35/мин.',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w400,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          )
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 95),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
+                          borderRadius: BorderRadius.circular(10),   
+                        ),
+                        padding: const EdgeInsets.all(7),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Расходует:',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            height: 40,
-                            child: FilledButton(
-                              onPressed: () {
-                                AudioManager().playSfx('cash_register.mp3');
-                                Navigator.of(context).pop(bt);
-                              },
-                              child: const Text('Купить'),
+                            const SizedBox(height: 4),
+                            Image.asset(
+                              'assets/images/resources/product.png',
+                              width: 50,
+                              height: 50,
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              '10/час',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
+                        )
                       ),
                     ),
                   ],
                 ),
-              ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
+                  child: SizedBox(
+                    width: 185,
+                    child: Text(
+                      bt.description!,
+                      softWrap: true,
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: theme.colorScheme.surface,
+                      ),
+                    ),
+                  ),
+                ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minWidth: 100),
+                  child: MainTextButton(
+                    child: Row (      
+                      children: [
+                        Image.asset(
+                            'assets/images/resources/coin.png',
+                            width: 20,
+                            height: 20,
+                          ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '${bt.cost}',
+                          softWrap: true, 
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: theme.colorScheme.onPrimary,
+                            
+                          ),
+                        ),
+                      ],
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop<BuildingType>(bt);
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),
