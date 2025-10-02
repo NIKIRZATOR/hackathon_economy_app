@@ -1,5 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:hackathon_economy_app/core/ui/MainIconButton.dart';
+import 'package:hackathon_economy_app/features/profile/bank_cards/bank_cards_mock.dart';
+import 'package:hackathon_economy_app/features/profile/bank_cards/bank_card.dart';
 
 class ProfileDialog extends StatelessWidget {
   const ProfileDialog({
@@ -7,7 +10,7 @@ class ProfileDialog extends StatelessWidget {
     required this.username,
     required this.cityTitle,
     required this.level,
-    this.onOpenMapInfo,
+    this.onOpenCardInfo,
     this.maxWidthHint,
     this.maxHeightHint,
   });
@@ -15,17 +18,17 @@ class ProfileDialog extends StatelessWidget {
   final String username;
   final String cityTitle;
   final int level;
-  final VoidCallback? onOpenMapInfo;
+  final Future<void> Function(BuildContext)? onOpenCardInfo;
 
   final double? maxWidthHint;
   final double? maxHeightHint;
 
   @override
   Widget build(BuildContext context) {
+    final card = mockCards[level - 1]; 
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
-    // Правильное приведение типов
     final double maxW = (math.min(
       560,
       math.min(size.width - 48, (maxWidthHint ?? double.infinity) - 24),
@@ -49,27 +52,45 @@ class ProfileDialog extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
+              const SizedBox(height: 8),
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  Expanded(
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 45, 0),
                     child: Text(
                       'Профиль',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
+                      softWrap: true,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w800,
+                        height: 0.9,
                       ),
                     ),
                   ),
-                  IconButton(
-                    tooltip: 'Закрыть',
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: MainIconButton(
+                      icon: Icons.close,
+                      size: 43,
+                      isPink: true,
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 8),
+              InkWell(
+                onTap: () => onOpenCardInfo?.call(context),
+                borderRadius: BorderRadius.circular(16),
+                child: BankCard(data: card, isInk: true),
               ),
               const SizedBox(height: 8),
               Flexible(
                 child: SingleChildScrollView(
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const SizedBox(height: 8),
                       _InfoRow(label: 'Имя', value: username),
@@ -81,22 +102,6 @@ class ProfileDialog extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-              Row(
-                children: [
-                  FilledButton(
-                    onPressed: () {
-                      Navigator.of(context).maybePop();
-                      onOpenMapInfo?.call();
-                    },
-                    child: const Text('ВСЕ О КАРТЕ'),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Закрыть'),
-                  ),
-                ],
               ),
             ],
           ),

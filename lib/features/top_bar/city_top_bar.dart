@@ -48,7 +48,7 @@ class CityTopBar extends StatelessWidget {
               children: [
                 StarButton(
                   text: '$userLvl',
-                  assetPath: 'assets/images/star.svg',
+                  assetPath: 'assets/images/svg/star.svg',
                   size: 70,
                   onPressed: () => openLevelInfo(
                     context,
@@ -74,9 +74,9 @@ class CityTopBar extends StatelessWidget {
                         iconPath: 'assets/images/resources/star.png',
                       ),
                       CoinsOval(
-                        amount: coinsCount, // или _coins
+                        amount: coinsCount,
                         iconPath: 'assets/images/resources/coin.png',
-                        deltaStream: coinsDeltaStream, // если есть стрим из тикера
+                        deltaStream: coinsDeltaStream,
                       )
                     ],
                   ),

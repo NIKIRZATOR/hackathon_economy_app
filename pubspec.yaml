@@ -35,7 +35,7 @@ flutter:
   assets:
     - assets/images/road_gor.png
     - assets/images/grass_32.png
-    - assets/images/star.svg
+    - assets/images/svg/
     - assets/images/resources/
     - assets/mock_data/mock_building_type.json
     - assets/audio/music/
