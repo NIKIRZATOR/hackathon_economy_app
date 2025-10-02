@@ -21,17 +21,21 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
     final theme = Theme.of(context);
 
     return DialogWithCross(
-      screenHeight: screenHeight,
+      screenHeight: screenHeight * 0.9,
       screenWidth: screenWight,
       title: bt.titleBuildingType,
       content: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.background,
-          borderRadius: BorderRadius.circular(10),   
+          borderRadius: BorderRadius.circular(10),
         ),
-        padding: const EdgeInsets.fromLTRB(6, 6, 9, 9),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        padding: const EdgeInsets.fromLTRB(6, 20, 9, 9),
+        child: Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          alignment: WrapAlignment.start,
+          runAlignment: WrapAlignment.start,
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Column(
               children: [
@@ -39,7 +43,6 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                     ? ClipRect(
                         child: Align(
                           alignment: Alignment.center,
-                          heightFactor: 0.85,
                           child: Image.asset(
                             width: 135,
                             bt.imageAsset!,
@@ -58,7 +61,6 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(width: 8),
             Column(
               children: [
                 Row(
@@ -66,41 +68,40 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                   children: [
                     ConstrainedBox(
                       constraints: const BoxConstraints(minWidth: 50),
-                      child: 
-                        Container(
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surface,
-                            borderRadius: BorderRadius.circular(10),   
-                          ),
-                          padding: const EdgeInsets.all(7),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Производит:',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: theme.colorScheme.onSurface,
-                                ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(7),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Производит:',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: theme.colorScheme.onSurface,
                               ),
-                              const SizedBox(height: 4),
-                              Image.asset(
-                                'assets/images/resources/coin.png',
-                                width: 50,
-                                height: 50,
+                            ),
+                            const SizedBox(height: 4),
+                            Image.asset(
+                              'assets/images/resources/coin.png',
+                              width: 50,
+                              height: 50,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '35/мин.',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w400,
+                                color: theme.colorScheme.onSurface,
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '35/мин.',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w400,
-                                  color: theme.colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          )
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -109,7 +110,7 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface,
-                          borderRadius: BorderRadius.circular(10),   
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.all(7),
                         child: Column(
@@ -139,7 +140,7 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ),
                     ),
                   ],
@@ -160,24 +161,23 @@ class BuildingTypeDetailsDialog extends StatelessWidget {
                   ),
                 ),
                 ConstrainedBox(
-                  constraints: const BoxConstraints(minWidth: 100),
+                  constraints: const BoxConstraints(minWidth: 100, maxWidth: 200),
                   child: MainTextButton(
-                    child: Row (      
+                    child: Row(
                       children: [
                         Image.asset(
-                            'assets/images/resources/coin.png',
-                            width: 20,
-                            height: 20,
-                          ),
+                          'assets/images/resources/coin.png',
+                          width: 20,
+                          height: 20,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${bt.cost}',
-                          softWrap: true, 
+                          softWrap: true,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                             color: theme.colorScheme.onPrimary,
-                            
                           ),
                         ),
                       ],
